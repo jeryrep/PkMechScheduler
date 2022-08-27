@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="PkMechScheduler.Frontend.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:pages="clr-namespace:PkMechScheduler.Frontend.Pages"
+    FlyoutBehavior="Flyout"
+    WidthRequest="100"
+    HeightRequest="500">
+    <FlyoutItem Title="Welcome">
+        <ShellContent Title="Home" ContentTemplate="{DataTemplate pages:WelcomePage}"/>
+    </FlyoutItem>
+    <FlyoutItem Title="Student">
+        <ShellContent Title="Student Schedule" ContentTemplate="{DataTemplate pages:SchedulePage}"/>
+    </FlyoutItem>
+    <FlyoutItem Title="Teacher">
+        <ShellContent Title="Teacher Schedule" ContentTemplate="{DataTemplate pages:TeacherSchedulePage}"></ShellContent>
+    </FlyoutItem>
+    <FlyoutItem Title="Rooms">
+        <ShellContent Title="Room Occupation" ContentTemplate="{DataTemplate pages:RoomPage}"></ShellContent>
+    </FlyoutItem>
+    <FlyoutItem Title="Configurator">
+        <ShellContent Title="Combine" ContentTemplate="{DataTemplate pages:ConfiguratorPage}"></ShellContent>
+    </FlyoutItem>
+</Shell>
