@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31611.283
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PkMechScheduler.Frontend", "PkMechScheduler.Frontend\PkMechScheduler.Frontend.csproj", "{B3239B4C-2B9A-4D08-A749-76D60EF249CC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PkMechScheduler.Frontend", "PkMechScheduler.Frontend\PkMechScheduler.Frontend.csproj", "{B3239B4C-2B9A-4D08-A749-76D60EF249CC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PkMechScheduler.Api", "PkMechScheduler.Api\PkMechScheduler.Api.csproj", "{147EB714-C3C9-42AD-9D04-A593505057C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PkMechScheduler.Api", "PkMechScheduler.Api\PkMechScheduler.Api.csproj", "{147EB714-C3C9-42AD-9D04-A593505057C8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
