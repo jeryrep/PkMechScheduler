@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:behaviors="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="PkMechScheduler.Frontend.Views.StudentFilterView">
+    <ContentView.Resources>
+        <Style x:Key="InvalidEntryStyle" TargetType="Entry">
+            <Setter Property="TextColor" Value="Red" />
+        </Style>
+        <Style x:Key="ValidEntryStyle" TargetType="Entry">
+            <Setter Property="TextColor" Value="Green" />
+        </Style>
+    </ContentView.Resources>
+    <ContentView.Content>
+        <Border StrokeThickness="4" Padding="20, 0, 20, 0">
+            <VerticalStackLayout>
+                <HorizontalStackLayout>
+                    <Label Text="Grupa: " HorizontalOptions="Start" VerticalTextAlignment="Center"/>
+                    <Picker x:Name="GroupsPicker" SelectedIndex="0" HorizontalOptions="End"/>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout>
+                    <Label Text="Grupa laboratoryjna: " HorizontalOptions="Start" VerticalTextAlignment="Center"/>
+                    <Entry x:Name="LaboratoryGroupNumber" Text="1" WidthRequest="50" HorizontalOptions="End">
+                        <Entry.Behaviors>
+                            <behaviors:NumericValidationBehavior 
+                                InvalidStyle="{StaticResource InvalidEntryStyle}"
+                                ValidStyle="{StaticResource ValidEntryStyle}"
+                                Flags="ValidateOnValueChanged"
+                                MinimumValue="0"
+                                MaximumValue="9"
+                                MaximumDecimalPlaces="0"/>
+                        </Entry.Behaviors>
+                    </Entry>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout>
+                    <Label Text="Grupa komputerowa: " HorizontalOptions="Start" VerticalTextAlignment="Center"/>
+                    <Entry x:Name="ComputersLabGroupNumber" Text="1" WidthRequest="50" HorizontalOptions="End">
+                        <Entry.Behaviors>
+                            <behaviors:NumericValidationBehavior 
+                                InvalidStyle="{StaticResource InvalidEntryStyle}"
+                                ValidStyle="{StaticResource ValidEntryStyle}"
+                                Flags="ValidateOnValueChanged"
+                                MinimumValue="0"
+                                MaximumValue="9"
+                                MaximumDecimalPlaces="0"/>
+                        </Entry.Behaviors>
+                    </Entry>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout>
+                    <Label Text="Grupa projektowa: " HorizontalOptions="Start" VerticalTextAlignment="Center"/>
+                    <Entry x:Name="ProjectGroup" Text="1" WidthRequest="50" HorizontalOptions="End">
+                        <Entry.Behaviors>
+                            <behaviors:NumericValidationBehavior 
+                                InvalidStyle="{StaticResource InvalidEntryStyle}"
+                                ValidStyle="{StaticResource ValidEntryStyle}"
+                                Flags="ValidateOnValueChanged"
+                                MinimumValue="0"
+                                MaximumValue="9"
+                                MaximumDecimalPlaces="0"/>
+                        </Entry.Behaviors>
+                    </Entry>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout>
+                    <Label Text="Tydzień: " HorizontalOptions="Start" VerticalTextAlignment="Center"/>
+                    <Picker x:Name="WeekPicker" SelectedIndex="0" HorizontalOptions="End">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>Nieparzysty</x:String>
+                                <x:String>Parzysty</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout>
+                    <Button Text="Anuluj" HorizontalOptions="Start"></Button>
+                    <Button Text="Zatwierdź" HorizontalOptions="End"></Button>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </Border>
+    </ContentView.Content>
+</ContentView>

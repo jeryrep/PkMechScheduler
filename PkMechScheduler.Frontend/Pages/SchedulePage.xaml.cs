@@ -1,6 +1,7 @@
 ﻿using PkMechScheduler.Frontend.Helpers;
 using PkMechScheduler.Frontend.Models;
 using PkMechScheduler.Frontend.Services;
+using PkMechScheduler.Frontend.Views;
 
 namespace PkMechScheduler.Frontend.Pages;
 
@@ -9,13 +10,18 @@ public partial class SchedulePage
     private readonly ScheduleService _scheduleService;
     private List<Frame> _frames = new();
     private readonly Dictionary<string, string> _groups;
+    private List<IView> _filters = new();
     public SchedulePage()
     {
         _scheduleService = Application.Current?.Handler.MauiContext?.Services.GetService<ScheduleService>();
         InitializeComponent();
         _groups = _scheduleService?.GetGroups();
-        GroupsPicker.ItemsSource = _groups!.Select(g => g.Key).ToList();
-        GroupsPicker.SelectedIndex = 0;
+        var filterView = new StudentFilterView();
+        _filters.Add(filterView);
+        Filters.Add(filterView);
+        Filters.Add(new StudentFilterView());
+        /*GroupPicker.ItemsSource = _groups!.Select(g => g.Key).ToList();
+        GroupsPicker.SelectedIndex = 0;*/
     }
 
     private void GenerateSchedule(object sender, EventArgs e)
@@ -23,7 +29,7 @@ public partial class SchedulePage
         foreach (var frame in _frames)
             ScheduleGrid.Remove(frame);
         _frames = new List<Frame>();
-        var schedule = _scheduleService.GetRawSchedule(_groups.ElementAt(GroupsPicker.SelectedIndex).Value);
+        var schedule = _scheduleService.GetRawSchedule(_groups[((StudentFilterView)_filters[0]).PickedGroup]);
         ScheduleGrid.Add(new Frame
         {
             BackgroundColor = Color.FromArgb("#0F3D3E"),
@@ -73,8 +79,18 @@ public partial class SchedulePage
                         TextColor = Color.FromArgb("#100F0F")
                     }
                 };
+                var gesture = new TapGestureRecognizer();
+                gesture.Tapped += async (_, _) => {
+                    await DisplayAlert(blockModel.Name, $"Grupa: {blockModel.Group}\n" +
+                                                        $"Sala: {blockModel.Place}\n" +
+                                                        $"Tydzień: {blockModel.EvenWeek switch{true => "Parzysty", false => "Nieparzysty", _ => "Brak informacji"}}\n" +
+                                                        $"Liczba godzin: {blockModel.Blocks}", 
+                        "OK");
+                };
+                block.GestureRecognizers.Add(gesture);
                 _frames.Add(block);
                 ScheduleGrid.Add(block, (byte)daySchedule.Key + 2, blockModel.Number + 1);
+                ScheduleGrid.SetRowSpan(block, blockModel.Blocks);
             }
     }
 

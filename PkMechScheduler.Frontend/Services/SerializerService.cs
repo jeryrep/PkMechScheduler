@@ -53,7 +53,6 @@ public class SerializerService
                     var placeIndex = textBlocks.LastOrDefault()!.LastIndexOf("-", StringComparison.Ordinal);
                     var place = placeIndex >= 0 ? textBlocks.LastOrDefault()?[..placeIndex] : textBlocks.LastOrDefault();
 
-
                     var blockModel = new BlockModel
                     {
                         Number = (byte)row.i,
@@ -66,7 +65,18 @@ public class SerializerService
                         Initials = initials,
                         Place = place
                     };
+
+                    var possibleDuplicate = schedule.First(x => x.Key == (Day)block.j).Value
+                        .Find(x => x.Name == name && x.Group == group && x.Place == place && x.EvenWeek == evenWeek);
+
+                    /*if (possibleDuplicate != null)
+                    {
+                        possibleDuplicate.Blocks++;
+                    }
+                    else
+                    {*/
                     schedule.First(x => x.Key == (Day)block.j).Value.Add(blockModel);
+                    //} 
                 }
             }
         }

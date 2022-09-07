@@ -56,6 +56,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Pages\AddFilterPage.xaml.cs">
+	    <DependentUpon>AddFilterPage.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Pages\ConfiguratorPage.xaml.cs">
 	    <DependentUpon>ConfiguratorPage.xaml</DependentUpon>
 	  </Compile>
@@ -71,13 +74,22 @@
 	  <Compile Update="Pages\WelcomePage.xaml.cs">
 	    <DependentUpon>WelcomePage.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Views\StudentFilterView.xaml.cs">
+	    <DependentUpon>StudentFilterView.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="Pages\AddFilterPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Pages\SchedulePage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\WelcomePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\StudentFilterView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
