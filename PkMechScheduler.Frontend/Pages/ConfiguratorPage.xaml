@@ -4,6 +4,32 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="PkMechScheduler.Frontend.Pages.ConfiguratorPage">
     <ContentPage.Content>
-        
+        <ScrollView>
+            <VerticalStackLayout>
+                <HorizontalStackLayout x:Name="Filters">
+                    <VerticalStackLayout>
+                        <Label Text="Dodaj filtr" HorizontalTextAlignment="Center"/>
+                        <Button Text="Grupa" Clicked="AddGroup"/>
+                        <Button Text="Nauczyciel"/>
+                        <Button Text="Sala"/>
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+                <Button Text="Wyświetl" Clicked="GenerateSchedule" HorizontalOptions="Center"/>
+                <Grid x:Name="ScheduleGrid">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition x:Name="Number" Width="30"/>
+                        <ColumnDefinition x:Name="Hour" Width="100"/>
+                        <ColumnDefinition x:Name="Monday"/>
+                        <ColumnDefinition x:Name="Tuesday"/>
+                        <ColumnDefinition x:Name="Wednesday"/>
+                        <ColumnDefinition x:Name="Thursday"/>
+                        <ColumnDefinition x:Name="Friday"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition x:Name="Header"/>
+                    </Grid.RowDefinitions>
+                </Grid>
+            </VerticalStackLayout>
+        </ScrollView>
     </ContentPage.Content>
 </ContentPage>

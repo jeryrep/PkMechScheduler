@@ -2,18 +2,23 @@
 
 namespace PkMechScheduler.Frontend.Views;
 
-public partial class StudentFilterView : ContentView
+public partial class StudentFilterView
 {
-    private readonly ScheduleService _scheduleService;
     private readonly Dictionary<string, string> _groups;
     public StudentFilterView()
     {
-        _scheduleService = Application.Current?.Handler.MauiContext?.Services.GetService<ScheduleService>();
-        _groups = _scheduleService?.GetGroups();
+        var scheduleService = Application.Current?.Handler.MauiContext?.Services.GetService<ScrapService>();
+        //_groups = scheduleService?.GetGroups();
         InitializeComponent();
         GroupsPicker.ItemsSource = _groups!.Select(g => g.Key).ToList();
         GroupsPicker.SelectedIndex = 0;
+        WeekPicker.SelectedIndex = 0;
     }
 
-    public string PickedGroup => GroupsPicker.SelectedItem as string;
+    public string PickedGroup => _groups[GroupsPicker.SelectedItem as string ?? string.Empty];
+
+    public string LaboratoryGroup => LaboratoryGroupNumber.Text;
+    public string ProjectGroup => ProjectGroupNumber.Text;
+    public string ComputersLaboratoryGroup => ComputersLabGroupNumber.Text;
+    public bool EvenWeek => (WeekPicker.SelectedIndex + 1) % 2 == 0;
 }

@@ -30,6 +30,12 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="$(TargetFramework.Contains('-windows')) and '$(Configuration)' == 'Release'">
+		<GenerateAppxPackageOnBuild>true</GenerateAppxPackageOnBuild>
+		<AppxPackageSigningEnabled>true</AppxPackageSigningEnabled>
+		<PackageCertificateThumbprint>049C47C4D808AE3E5DA8B4D7FE97187297BC999F</PackageCertificateThumbprint>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
@@ -51,6 +57,7 @@
 	<ItemGroup>
 	  <PackageReference Include="AngleSharp" Version="0.17.1" />
 	  <PackageReference Include="CommunityToolkit.Maui" Version="1.2.0" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.8" />
 	  <PackageReference Include="Microsoft.Extensions.Localization" Version="6.0.8" />
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 	</ItemGroup>
@@ -59,14 +66,14 @@
 	  <Compile Update="Pages\AddFilterPage.xaml.cs">
 	    <DependentUpon>AddFilterPage.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Pages\ConfiguratorPage.xaml.cs">
-	    <DependentUpon>ConfiguratorPage.xaml</DependentUpon>
+	  <Compile Update="Pages\SchedulePage.xaml.cs">
+	    <DependentUpon>SchedulePage.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="Pages\RoomPage.xaml.cs">
 	    <DependentUpon>RoomPage.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Pages\SchedulePage.xaml.cs">
-	    <DependentUpon>SchedulePage.xaml</DependentUpon>
+	  <Compile Update="Pages\ConfiguratorPage.xaml.cs">
+	    <DependentUpon>ConfiguratorPage.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="Pages\TeacherSchedulePage.xaml.cs">
 	    <DependentUpon>TeacherSchedulePage.xaml</DependentUpon>
@@ -83,7 +90,7 @@
 	  <MauiXaml Update="Pages\AddFilterPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\SchedulePage.xaml">
+	  <MauiXaml Update="Pages\ConfiguratorPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\WelcomePage.xaml">
@@ -96,6 +103,11 @@
 
 	<ItemGroup>
 	  <Folder Include="Extensions\" />
+	  <Folder Include="Enums\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\PkMechScheduler.Database\PkMechScheduler.Database.csproj" />
 	</ItemGroup>
 
 </Project>

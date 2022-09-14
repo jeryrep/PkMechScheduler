@@ -6,9 +6,7 @@
     <ContentPage.Content>
         <ScrollView>
             <VerticalStackLayout>
-                <HorizontalStackLayout x:Name="Filters">
-                </HorizontalStackLayout>
-                <Button Text="Wyświetl" Clicked="GenerateSchedule" HorizontalOptions="Center"/>
+                <Button Text="Wyświetl" Clicked="UpdateSchedule" HorizontalOptions="Center"/>
                 <Grid x:Name="ScheduleGrid">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition x:Name="Number" Width="30"/>
@@ -21,23 +19,6 @@
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition x:Name="Header"/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
                     </Grid.RowDefinitions>
                 </Grid>
             </VerticalStackLayout>

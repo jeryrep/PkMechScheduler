@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PkMechScheduler.Frontend", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PkMechScheduler.Api", "PkMechScheduler.Api\PkMechScheduler.Api.csproj", "{147EB714-C3C9-42AD-9D04-A593505057C8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PkMechScheduler.Database", "PkMechScheduler.Database\PkMechScheduler.Database.csproj", "{1C1EE1C0-72C7-478F-83EE-13C05DF47B34}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PkMechScheduler.StartupMigration", "PkMechScheduler.StartupMigration\PkMechScheduler.StartupMigration.csproj", "{F0984EF6-6D1B-4850-9824-8B3228C1CE7B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +27,14 @@ Global
 		{147EB714-C3C9-42AD-9D04-A593505057C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{147EB714-C3C9-42AD-9D04-A593505057C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{147EB714-C3C9-42AD-9D04-A593505057C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C1EE1C0-72C7-478F-83EE-13C05DF47B34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C1EE1C0-72C7-478F-83EE-13C05DF47B34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C1EE1C0-72C7-478F-83EE-13C05DF47B34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C1EE1C0-72C7-478F-83EE-13C05DF47B34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0984EF6-6D1B-4850-9824-8B3228C1CE7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0984EF6-6D1B-4850-9824-8B3228C1CE7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0984EF6-6D1B-4850-9824-8B3228C1CE7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0984EF6-6D1B-4850-9824-8B3228C1CE7B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

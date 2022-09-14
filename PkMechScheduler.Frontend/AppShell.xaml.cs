@@ -1,4 +1,6 @@
-﻿namespace PkMechScheduler.Frontend;
+﻿using PkMechScheduler.Frontend.Pages;
+
+namespace PkMechScheduler.Frontend;
 
 public partial class AppShell
 {

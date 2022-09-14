@@ -10,7 +10,7 @@
         <ShellContent Title="Strona domowa" ContentTemplate="{DataTemplate pages:WelcomePage}"/>
     </FlyoutItem>
     <FlyoutItem Title="Student">
-        <ShellContent Title="Rozkład zajęć" ContentTemplate="{DataTemplate pages:SchedulePage}"/>
+        <ShellContent Title="Rozkład zajęć" ContentTemplate="{DataTemplate pages:SchedulePage}" Route="SchedulePage"/>
     </FlyoutItem>
     <FlyoutItem Title="Nauczyciel">
         <ShellContent Title="Rozkład zajęć nauczyciela" ContentTemplate="{DataTemplate pages:TeacherSchedulePage}"></ShellContent>

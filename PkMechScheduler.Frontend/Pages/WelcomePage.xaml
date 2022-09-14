@@ -6,16 +6,31 @@
              BackgroundColor="Transparent">
     <VerticalStackLayout>
         <HorizontalStackLayout Margin="10, 10, 10, 10">
-            <Picker VerticalOptions="End" x:Name="Picker">
+            <Picker VerticalOptions="End" x:Name="LanguagePicker">
                 <Picker.ItemsSource>
                     <x:Array Type="{x:Type x:String}">
                         <x:String>PL</x:String>
-                        <x:String>EN</x:String>
                     </x:Array>
                 </Picker.ItemsSource>
             </Picker>
         </HorizontalStackLayout>
-        <Label Text="Witamy" VerticalOptions="Center" FontSize="40" HorizontalOptions="Center" />
-        <Label Text="Tutaj można wybrać domyślną konfigurację uruchomieniową aplikacji" HorizontalOptions="Center" />
+        <Label Text="Witamy" VerticalOptions="Center" FontSize="40" HorizontalOptions="Center"/>
+        <Label Text="Tutaj można wybrać domyślną konfigurację uruchomieniową aplikacji" HorizontalOptions="Center"/>
+        <Label Text="Wybierz tryb aplikacji" HorizontalOptions="Center"/>
+        <RadioButton Content="Student" HorizontalOptions="Center" GroupName="DefaultConfig" CheckedChanged="OnStudentChecked" x:Name="StudentButton"/>
+        <VerticalStackLayout x:Name="StudentConfig" HorizontalOptions="Center" Padding="0, 10, 0, 10" IsVisible="False">
+            <HorizontalStackLayout HorizontalOptions="Center">
+                <Label Text="Kierunek: " HorizontalOptions="Center" VerticalTextAlignment="Center"/>
+                <Picker x:Name="GroupsPicker" HorizontalOptions="Center" SelectedIndexChanged="UpdateSubjects"/>
+            </HorizontalStackLayout>
+            <VerticalStackLayout x:Name="GroupsSelect"/>
+        </VerticalStackLayout>
+        <RadioButton Content="Profesor" HorizontalOptions="Center" GroupName="DefaultConfig" x:Name="TeacherButton" CheckedChanged="OnTeacherChecked"/>
+        <VerticalStackLayout x:Name="TeacherConfig" IsVisible="False" HorizontalOptions="Center">
+        </VerticalStackLayout>
+        <RadioButton Content="Dziekanat" HorizontalOptions="Center" GroupName="DefaultConfig" x:Name="DeansOfficeButton" CheckedChanged="OnDeansOfficeChecked"/>
+        <VerticalStackLayout x:Name="DeansOfficeConfig" IsVisible="False" HorizontalOptions="Center">
+        </VerticalStackLayout>
+        <Button Text="Zapisz" Clicked="SavePreferences" HorizontalOptions="Center" WidthRequest="100"/>
     </VerticalStackLayout>
 </ContentPage>

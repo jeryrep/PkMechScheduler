@@ -49,7 +49,7 @@
                 </HorizontalStackLayout>
                 <HorizontalStackLayout>
                     <Label Text="Grupa projektowa: " HorizontalOptions="Start" VerticalTextAlignment="Center"/>
-                    <Entry x:Name="ProjectGroup" Text="1" WidthRequest="50" HorizontalOptions="End">
+                    <Entry x:Name="ProjectGroupNumber" Text="1" WidthRequest="50" HorizontalOptions="End">
                         <Entry.Behaviors>
                             <behaviors:NumericValidationBehavior 
                                 InvalidStyle="{StaticResource InvalidEntryStyle}"
@@ -63,7 +63,7 @@
                 </HorizontalStackLayout>
                 <HorizontalStackLayout>
                     <Label Text="Tydzień: " HorizontalOptions="Start" VerticalTextAlignment="Center"/>
-                    <Picker x:Name="WeekPicker" SelectedIndex="0" HorizontalOptions="End">
+                    <Picker x:Name="WeekPicker" HorizontalOptions="End">
                         <Picker.ItemsSource>
                             <x:Array Type="{x:Type x:String}">
                                 <x:String>Nieparzysty</x:String>
@@ -72,10 +72,10 @@
                         </Picker.ItemsSource>
                     </Picker>
                 </HorizontalStackLayout>
-                <HorizontalStackLayout>
+                <!--<HorizontalStackLayout>
                     <Button Text="Anuluj" HorizontalOptions="Start"></Button>
                     <Button Text="Zatwierdź" HorizontalOptions="End"></Button>
-                </HorizontalStackLayout>
+                </HorizontalStackLayout>-->
             </VerticalStackLayout>
         </Border>
     </ContentView.Content>
