@@ -6,7 +6,42 @@
     <ContentPage.Content>
         <ScrollView>
             <VerticalStackLayout>
-                <Button Text="Wyświetl" Clicked="UpdateSchedule" HorizontalOptions="Center"/>
+                <HorizontalStackLayout>
+                    <VerticalStackLayout>
+                        <RadioButton Content="Parzysty" x:Name="EvenWeekRadio" IsChecked="True" CheckedChanged="UpdateSchedule"/>
+                        <RadioButton Content="Nieparzysty" CheckedChanged="UpdateSchedule"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout>
+                        <HorizontalStackLayout x:Name="LectureLayout">
+                            <CheckBox x:Name="LectureCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule"/>
+                            <Label Text="Pokaż wykłady" VerticalTextAlignment="Center"/>
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout x:Name="ExerciseLayout">
+                            <CheckBox x:Name="ExerciseCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule"/>
+                            <Label Text="Pokaż ćwiczenia" VerticalTextAlignment="Center"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout>
+                        <HorizontalStackLayout x:Name="LaboratoryLayout">
+                            <CheckBox x:Name="LaboratoryCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule"/>
+                            <Label Text="Pokaż laboratoria" VerticalTextAlignment="Center"/>
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout x:Name="ComputersLaboratoryLayout">
+                            <CheckBox x:Name="ComputersLaboratoryCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule"/>
+                            <Label Text="Pokaż laboratoria komputerowe" VerticalTextAlignment="Center"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout>
+                        <HorizontalStackLayout x:Name="ProjectsLayout">
+                            <CheckBox x:Name="ProjectCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule"/>
+                            <Label Text="Pokaż projekty" VerticalTextAlignment="Center"/>
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout x:Name="SeminarsLayout">
+                            <CheckBox x:Name="SeminarsCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule"/>
+                            <Label Text="Pokaż seminaria" VerticalTextAlignment="Center"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
                 <Grid x:Name="ScheduleGrid">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition x:Name="Number" Width="30"/>

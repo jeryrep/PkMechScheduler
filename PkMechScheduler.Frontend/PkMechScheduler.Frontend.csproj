@@ -36,6 +36,10 @@
 		<PackageCertificateThumbprint>049C47C4D808AE3E5DA8B4D7FE97187297BC999F</PackageCertificateThumbprint>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<AndroidLinkMode>None</AndroidLinkMode>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
@@ -57,8 +61,8 @@
 	<ItemGroup>
 	  <PackageReference Include="AngleSharp" Version="0.17.1" />
 	  <PackageReference Include="CommunityToolkit.Maui" Version="1.2.0" />
-	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.8" />
-	  <PackageReference Include="Microsoft.Extensions.Localization" Version="6.0.8" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.9" />
+	  <PackageReference Include="Microsoft.Extensions.Localization" Version="6.0.9" />
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 	</ItemGroup>
 

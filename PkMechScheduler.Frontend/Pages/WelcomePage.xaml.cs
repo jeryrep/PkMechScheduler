@@ -7,15 +7,14 @@ namespace PkMechScheduler.Frontend.Pages;
 public partial class WelcomePage
 {
     private readonly IDatabaseService _databaseService;
-    private readonly Dictionary<string, string> _groups;
     private readonly List<IView> _views = new();
 
     public WelcomePage()
     {
         _databaseService = Application.Current?.Handler.MauiContext?.Services.GetService<IDatabaseService>();
         InitializeComponent();
-        _groups = _databaseService?.GetGroups().Result;
-        GroupsPicker.ItemsSource = _groups!.Select(g => g.Key[..3]).Distinct().ToList();
+        var groups = _databaseService?.GetGroups().Result;
+        GroupsPicker.ItemsSource = groups!.Select(g => g.Key[..3]).Distinct().ToList();
         GroupsPicker.SelectedItem = Preferences.ContainsKey("Course") ? Preferences.Get("Course", "11A") : "11A";
         LanguagePicker.SelectedIndex = 0;
         switch (Preferences.Get("Mode", string.Empty))
@@ -98,12 +97,8 @@ public partial class WelcomePage
 
         var layout = new HorizontalStackLayout
         {
-            new Label
-            {
-                Text = $"Grupa {(char)type}",
-                VerticalTextAlignment = TextAlignment.Center
-            },
-            picker
+            HorizontalOptions = LayoutOptions.Center,
+            Children = { picker }
         };
 
         _views.Add(layout);
