@@ -79,24 +79,63 @@ public partial class WelcomePage
         AddSubjectCheckboxList(SubjectType.Laboratory, allInOne);
         AddSubjectCheckboxList(SubjectType.Projects, allInOne);
         AddSubjectCheckboxList(SubjectType.Seminars, allInOne);
+        AddWfPicker(allInOne);
+    }
+
+    private void AddWfPicker(List<BlockModel> blocks)
+    {
+        var filteredBlocks = blocks.Where(x => x.Name == "WF").ToList();
+        if (filteredBlocks.Count == 0) return;
+        var picker = new Picker
+        {
+            ItemsSource = new List<string>
+            {
+                "Kobieta",
+                "Mężczyzna"
+            },
+            WidthRequest = 120
+        };
+        picker.SelectedIndexChanged += GenderChanged;
+        if (Preferences.ContainsKey("WF"))
+            picker.SelectedIndex = Preferences.Get("WF", string.Empty).StartsWith("M") ? 1 : 0;
+        else picker.SelectedIndex = 1;
+        var layout = new HorizontalStackLayout
+        {
+            WidthRequest = 120,
+            HorizontalOptions = LayoutOptions.Center,
+            Children = { picker }
+        };
+        _views.Add(layout);
+        GroupsSelect.Add(layout);
+    }
+
+    private static void GenderChanged(object sender, EventArgs e)
+    {
+        var picker = sender as Picker;
+        Preferences.Set("WF", picker!.SelectedIndex == 1 ? "M" : "K");
     }
 
     private void AddSubjectCheckboxList(SubjectType type, IEnumerable<BlockModel> blocks)
     {
-        var filteredBlocks = blocks.Where(x => x.Group!.StartsWith((char)type)).ToList();
+        var filteredBlocks = blocks.Where(x => x.Group!.StartsWith((char)type) && x.Group!.Length != 1).ToList();
         if (filteredBlocks.Count == 0) return;
         var groupCount = filteredBlocks.Max(x => Convert.ToInt32(x.Group?.Substring(1, 2)));
-        var picker = new Picker();
         var list = new List<string>();
         for (var i = 1; i <= groupCount; i++) list.Add($"{(char)type}0{i}");
-        picker.ItemsSource = list;
+        var picker = new Picker
+        {
+            ItemsSource = list,
+            WidthRequest = 100,
+            SelectedIndex = Preferences.ContainsKey(((char)type).ToString())
+                ? Preferences.Get(((char)type).ToString(), string.Empty).Last() - 49
+                : 0
+        };
         picker.SelectedIndexChanged += PickerOnSelectedIndexChanged;
-        picker.SelectedIndex = Preferences.ContainsKey(((char)type).ToString())
-            ? Preferences.Get(((char)type).ToString(), string.Empty).Last() - 49
-            : 0;
+        
 
         var layout = new HorizontalStackLayout
         {
+            WidthRequest = 100,
             HorizontalOptions = LayoutOptions.Center,
             Children = { picker }
         };

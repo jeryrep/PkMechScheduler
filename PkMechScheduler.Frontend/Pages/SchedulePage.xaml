@@ -8,37 +8,50 @@
             <VerticalStackLayout>
                 <HorizontalStackLayout>
                     <VerticalStackLayout>
+                        <!--<Label Text="Nieparzysty"/>
+                        <Switch IsToggled="True" Toggled="UpdateSchedule" x:Name="WeekSwitch"/>
+                        <Label Text="Parzysty"/>-->
                         <RadioButton Content="Parzysty" x:Name="EvenWeekRadio" IsChecked="True" CheckedChanged="UpdateSchedule"/>
                         <RadioButton Content="Nieparzysty" CheckedChanged="UpdateSchedule"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout>
                         <HorizontalStackLayout x:Name="LectureLayout">
                             <CheckBox x:Name="LectureCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule"/>
-                            <Label Text="Pokaż wykłady" VerticalTextAlignment="Center"/>
+                            <Label Text="Wykłady" VerticalTextAlignment="Center"/>
                         </HorizontalStackLayout>
                         <HorizontalStackLayout x:Name="ExerciseLayout">
                             <CheckBox x:Name="ExerciseCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule"/>
-                            <Label Text="Pokaż ćwiczenia" VerticalTextAlignment="Center"/>
+                            <Label Text="Ćwiczenia" VerticalTextAlignment="Center"/>
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
                     <VerticalStackLayout>
                         <HorizontalStackLayout x:Name="LaboratoryLayout">
                             <CheckBox x:Name="LaboratoryCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule"/>
-                            <Label Text="Pokaż laboratoria" VerticalTextAlignment="Center"/>
+                            <Label Text="Laboratoria" VerticalTextAlignment="Center"/>
                         </HorizontalStackLayout>
                         <HorizontalStackLayout x:Name="ComputersLaboratoryLayout">
                             <CheckBox x:Name="ComputersLaboratoryCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule"/>
-                            <Label Text="Pokaż laboratoria komputerowe" VerticalTextAlignment="Center"/>
+                            <Label Text="L. komputerowe" VerticalTextAlignment="Center"/>
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
                     <VerticalStackLayout>
                         <HorizontalStackLayout x:Name="ProjectsLayout">
                             <CheckBox x:Name="ProjectCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule"/>
-                            <Label Text="Pokaż projekty" VerticalTextAlignment="Center"/>
+                            <Label Text="Projekty" VerticalTextAlignment="Center"/>
                         </HorizontalStackLayout>
                         <HorizontalStackLayout x:Name="SeminarsLayout">
                             <CheckBox x:Name="SeminarsCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule"/>
-                            <Label Text="Pokaż seminaria" VerticalTextAlignment="Center"/>
+                            <Label Text="Seminaria" VerticalTextAlignment="Center"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout>
+                        <HorizontalStackLayout x:Name="EnglishLayout">
+                            <CheckBox x:Name="EnglishCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule"/>
+                            <Label Text="Angielski" VerticalTextAlignment="Center"/>
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout x:Name="WfLayout">
+                            <CheckBox x:Name="WfCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule"/>
+                            <Label Text="WF" VerticalTextAlignment="Center"/>
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
                 </HorizontalStackLayout>
@@ -54,7 +67,148 @@
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition x:Name="Header"/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
                     </Grid.RowDefinitions>
+                    <Frame>
+                        <Label Text="Nr" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="1" Grid.Row="0">
+                        <Label Text="Godz" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="2" Grid.Row="0">
+                        <Label Text="Poniedziałek" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="3" Grid.Row="0">
+                        <Label Text="Wtorek" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="4" Grid.Row="0">
+                        <Label Text="Środa" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="5" Grid.Row="0">
+                        <Label Text="Czwartek" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="6" Grid.Row="0">
+                        <Label Text="Piątek" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="0" Grid.Row="1">
+                        <Label Text="1" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="0" Grid.Row="2">
+                        <Label Text="2" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="0" Grid.Row="3">
+                        <Label Text="3" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="0" Grid.Row="4">
+                        <Label Text="4" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="0" Grid.Row="5">
+                        <Label Text="5" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="0" Grid.Row="6">
+                        <Label Text="6" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="0" Grid.Row="7">
+                        <Label Text="7" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="0" Grid.Row="8">
+                        <Label Text="8" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="0" Grid.Row="9">
+                        <Label Text="9" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="0" Grid.Row="10">
+                        <Label Text="10" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="0" Grid.Row="11">
+                        <Label Text="11" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="0" Grid.Row="12">
+                        <Label Text="12" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="0" Grid.Row="13">
+                        <Label Text="13" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="0" Grid.Row="14">
+                        <Label Text="14" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="0" Grid.Row="15">
+                        <Label Text="15" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="0" Grid.Row="16">
+                        <Label Text="16" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="1" Grid.Row="1">
+                        <Label Text="7:30-8:15" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="1" Grid.Row="2">
+                        <Label Text="8:15-9:00" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="1" Grid.Row="3">
+                        <Label Text="9:15-10:00" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="1" Grid.Row="4">
+                        <Label Text="10:00-10:45" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="1" Grid.Row="5">
+                        <Label Text="11:00-11:45" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="1" Grid.Row="6">
+                        <Label Text="11:45-12:30" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="1" Grid.Row="7">
+                        <Label Text="12:45-13:30" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="1" Grid.Row="8">
+                        <Label Text="13:30-14:15" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="1" Grid.Row="9">
+                        <Label Text="14:30-15:15" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="1" Grid.Row="10">
+                        <Label Text="15:15-16:00" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="1" Grid.Row="11">
+                        <Label Text="16:15-17:00" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="1" Grid.Row="12">
+                        <Label Text="17:00-17:45" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="1" Grid.Row="13">
+                        <Label Text="18:00-18:45" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="1" Grid.Row="14">
+                        <Label Text="18:45-19:30" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="1" Grid.Row="15">
+                        <Label Text="19:45-20:30" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Frame Grid.Column="1" Grid.Row="16">
+                        <Label Text="20:30-21:15" HorizontalTextAlignment="Center"/>
+                    </Frame>
+                    <Rectangle Grid.Column="2" Grid.Row="2" Grid.ColumnSpan="5"/>
+                    <Rectangle Grid.Column="2" Grid.Row="4" Grid.ColumnSpan="5"/>
+                    <Rectangle Grid.Column="2" Grid.Row="6" Grid.ColumnSpan="5"/>
+                    <Rectangle Grid.Column="2" Grid.Row="8" Grid.ColumnSpan="5"/>
+                    <Rectangle Grid.Column="2" Grid.Row="10" Grid.ColumnSpan="5"/>
+                    <Rectangle Grid.Column="2" Grid.Row="12" Grid.ColumnSpan="5"/>
+                    <Rectangle Grid.Column="2" Grid.Row="14" Grid.ColumnSpan="5"/>
+                    <Rectangle Grid.Column="2" Grid.Row="16" Grid.ColumnSpan="5"/>
                 </Grid>
             </VerticalStackLayout>
         </ScrollView>

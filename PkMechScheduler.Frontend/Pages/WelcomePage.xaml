@@ -2,8 +2,7 @@
 
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="PkMechScheduler.Frontend.Pages.WelcomePage"
-             BackgroundColor="Transparent">
+             x:Class="PkMechScheduler.Frontend.Pages.WelcomePage">
     <VerticalStackLayout>
         <HorizontalStackLayout Margin="10, 10, 10, 10">
             <Picker VerticalOptions="End" x:Name="LanguagePicker">
@@ -14,15 +13,11 @@
                 </Picker.ItemsSource>
             </Picker>
         </HorizontalStackLayout>
-        <Label Text="Witamy" VerticalOptions="Center" FontSize="40" HorizontalOptions="Center"/>
-        <Label Text="Tutaj można wybrać domyślną konfigurację uruchomieniową aplikacji" HorizontalOptions="Center"/>
-        <Label Text="Wybierz tryb aplikacji" HorizontalOptions="Center"/>
+        <Label Text="Witamy!" VerticalOptions="Center" FontSize="40" HorizontalOptions="Center"/>
+        <Label Text="Wybierz tryb aplikacji:" HorizontalOptions="Center"/>
         <RadioButton Content="Student" HorizontalOptions="Center" GroupName="DefaultConfig" CheckedChanged="OnStudentChecked" x:Name="StudentButton"/>
         <VerticalStackLayout x:Name="StudentConfig" HorizontalOptions="Center" Padding="0, 10, 0, 10" IsVisible="False">
-            <HorizontalStackLayout HorizontalOptions="Center">
-                <Label Text="Kierunek: " HorizontalOptions="Center" VerticalTextAlignment="Center"/>
-                <Picker x:Name="GroupsPicker" HorizontalOptions="Center" SelectedIndexChanged="UpdateSubjects"/>
-            </HorizontalStackLayout>
+            <Picker x:Name="GroupsPicker" HorizontalOptions="Center" SelectedIndexChanged="UpdateSubjects" WidthRequest="100"/>
             <VerticalStackLayout x:Name="GroupsSelect"/>
         </VerticalStackLayout>
         <RadioButton Content="Profesor" HorizontalOptions="Center" GroupName="DefaultConfig" x:Name="TeacherButton" CheckedChanged="OnTeacherChecked"/>

@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using Microsoft.Maui.Controls.Shapes;
+﻿using Microsoft.Maui.Controls.Shapes;
 using PkMechScheduler.Database.Models;
 using PkMechScheduler.Frontend.Enums;
 using PkMechScheduler.Frontend.Helpers;
@@ -12,6 +11,7 @@ public partial class SchedulePage
     private readonly IDatabaseService _databaseService;
     private readonly List<Frame> _frames = new();
     private List<BlockModel> _schedule;
+    private Line _timeLine = new();
     protected override void OnNavigatedTo(NavigatedToEventArgs args)
     {
         _schedule = _databaseService.GetBlocks(Preferences.Get("Course", string.Empty)).Result.Where(FiltersApply).ToList();
@@ -21,6 +21,8 @@ public partial class SchedulePage
         ComputersLaboratoryLayout.IsVisible = _schedule.Any(x => x.Group!.StartsWith(((char)SubjectType.ComputersLaboratory).ToString()));
         ProjectsLayout.IsVisible = _schedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Projects).ToString()));
         SeminarsLayout.IsVisible = _schedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Seminars).ToString()));
+        WfLayout.IsVisible = _schedule.Any(x => x.Group is "K" or "M");
+        EnglishLayout.IsVisible = _schedule.Any(x => x.Group == ((char)SubjectType.Exercise).ToString());
         GenerateSchedule();
     }
 
@@ -34,57 +36,7 @@ public partial class SchedulePage
     {
         _frames.ForEach(x => ScheduleGrid.Remove(x));
         _frames.Clear();
-        for (var i = 1; i <= 16; i++)
-        {
-            ScheduleGrid.AddRowDefinition(new RowDefinition());
-            var rect = new Rectangle
-            {
-                Fill = new SolidColorBrush(i % 2 == 0 ? Color.FromArgb("#A9A9A9") : Colors.Transparent)
-            };
-            ScheduleGrid.Add(rect, 2, i);
-            ScheduleGrid.SetColumnSpan(rect, 5);
-        }
-
-        ScheduleGrid.Add(new Frame
-        {
-            BackgroundColor = Color.FromArgb("#0F3D3E"),
-            Padding = 5,
-            Content = new Label { Text = "Nr" , HorizontalTextAlignment = TextAlignment.Center }
-        });
-        ScheduleGrid.Add(new Frame
-        {
-            BackgroundColor = Color.FromArgb("#0F3D3E"),
-            Padding = 5,
-            Content = new Label { Text = "Godz", HorizontalTextAlignment = TextAlignment.Center }
-        }, 1);
-        for (var i = 1; i <= 16; i++)
-        {
-            ScheduleGrid.AddRowDefinition(new RowDefinition());
-            ScheduleGrid.Add(new Frame
-            {
-                BackgroundColor = Color.FromArgb("#0F3D3E"),
-                Padding = 5,
-                Content = new Label { Text = i.ToString(), HorizontalTextAlignment = TextAlignment.Center }
-            }, 0, i);
-            ScheduleGrid.Add(new Frame
-            {
-                BackgroundColor = Color.FromArgb("#0F3D3E"),
-                Padding = 5,
-                Content = new Label { Text = ConstantHelper.Hours.ElementAt(i - 1), HorizontalTextAlignment = TextAlignment.Center }
-            }, 1, i);
-        }
-
-        for (var i = 1; i <= 5; i++)
-            ScheduleGrid.Add(new Frame
-            {
-                BackgroundColor = Color.FromArgb("#0F3D3E"),
-                Padding = 5,
-                Content = new Label
-                {
-                    Text = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(new CultureInfo("pl-PL").DateTimeFormat.GetDayName((DayOfWeek)i)),
-                    HorizontalTextAlignment = TextAlignment.Center
-                }
-            }, i + 1);
+        ScheduleGrid.Remove(_timeLine);
     }
 
     private void GenerateSchedule()
@@ -96,16 +48,7 @@ public partial class SchedulePage
         {
             var block = new Frame
             {
-                Background = blockModel.EvenWeek switch
-                {
-                    true => Color.FromArgb("#A5F1E9"),
-                    false => Color.FromArgb("#FA9494"),
-                    _ => new LinearGradientBrush(new GradientStopCollection
-                    {
-                        new(Color.FromArgb("#A5F1E9"), 0.1f),
-                        new(Color.FromArgb("#FA9494"), 1.0f)
-                    })
-                },
+                Background = Color.FromArgb("#6E6E6E"),
                 Padding = 5,
                 Content = new Label
                 {
@@ -145,7 +88,7 @@ public partial class SchedulePage
             _frames.Add(block);
             ScheduleGrid.Add(block, (int)blockModel.DayOfWeek + 1, blockModel.Number + 1);
             ScheduleGrid.SetRowSpan(block, blockModel.Blocks);
-            var line = new Line
+            _timeLine = new Line
             {
                 X2 = DeviceDisplay.MainDisplayInfo.Width,
                 Stroke = Brush.OrangeRed,
@@ -153,9 +96,9 @@ public partial class SchedulePage
                 StrokeDashOffset = 5
             };
             var (rowNum, breakTime) = GetCurrentHourRow();
-            if (!breakTime) line.VerticalOptions = LayoutOptions.Center;
-            ScheduleGrid.Add(line, 2, rowNum + 1);
-            ScheduleGrid.SetColumnSpan(line, ScheduleGrid.ColumnDefinitions.Count);
+            if (!breakTime) _timeLine.VerticalOptions = LayoutOptions.Center;
+            ScheduleGrid.Add(_timeLine, 2, rowNum + 1);
+            ScheduleGrid.SetColumnSpan(_timeLine, ScheduleGrid.ColumnDefinitions.Count);
         }
     }
 
@@ -171,7 +114,7 @@ public partial class SchedulePage
             if (DateTime.Now > DateTime.Parse(timespan[0]) && DateTime.Now < DateTime.Parse(timespan[1]))
                 return (i, false);
             if (DateTime.Now.Subtract(new TimeSpan(0, 15, 0)) < DateTime.Parse(timespan[1]))
-                return (i, true);
+                return (i + 1, true);
         }
         return (0, false);
     }
@@ -183,7 +126,9 @@ public partial class SchedulePage
          (model.Group == Preferences.Get(((char)SubjectType.Laboratory).ToString(), string.Empty) && LaboratoryCheckbox.IsChecked) ||
          (model.Group == Preferences.Get(((char)SubjectType.Projects).ToString(), string.Empty) && ProjectCheckbox.IsChecked) ||
          (model.Group == Preferences.Get(((char)SubjectType.Seminars).ToString(), string.Empty) && SeminarsCheckbox.IsChecked) ||
-         (model.Group == Preferences.Get(((char)SubjectType.Lecture).ToString(), string.Empty) && LectureCheckbox.IsChecked));
+         (model.Group == Preferences.Get(((char)SubjectType.Lecture).ToString(), string.Empty) && LectureCheckbox.IsChecked) ||
+         (model.Name == "WF" && Preferences.Get("WF", string.Empty) == model.Group && WfCheckbox.IsChecked) || 
+         (model.Name == "J angielski" && EnglishCheckbox.IsChecked));
 
     private void UpdateSchedule(object sender, EventArgs e) => GenerateSchedule();
 }

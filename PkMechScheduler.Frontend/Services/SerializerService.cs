@@ -50,6 +50,7 @@ public class SerializerService : ISerializerService
         for (var i = list.Count - 1; i >= 0; i--)
         {
             var blockModel = list[i];
+            if (blockModel.Name is "J angielski" or "WF") continue;
             var doubleWeek = list.Find(x =>
                 x.DayOfWeek == blockModel.DayOfWeek && x.Name == blockModel.Name &&
                 x.Group == blockModel.Group && x.Place == blockModel.Place &&
@@ -77,37 +78,54 @@ public class SerializerService : ISerializerService
 
             var index = textBlocks.FirstOrDefault()!.LastIndexOf("-", StringComparison.Ordinal);
             var name = index >= 0 ? textBlocks.FirstOrDefault()?[..index] : textBlocks.FirstOrDefault();
-            if (name.Length == 1) name = string.Join(" ", name, textBlocks[1]);
             var group = string.Empty;
             bool? evenWeek = null;
             var initials = string.Empty;
-
-            foreach (var textBlock in textBlocks)
+            switch (name)
             {
-                if (textBlock is "-P" or "P-" && group != string.Empty)
-                    initials = textBlock;
-                else if (Regex.IsMatch(textBlock, "^[(][MK][)]") ||
-                         Regex.IsMatch(textBlock, "[WKLĆSP]0?[0-9]?-"))
+                case "J":
+                    var nameSplit = textBlocks[1].Split("-");
+                    name = string.Join(" ", name, nameSplit.First());
+                    group = ((char)SubjectType.Exercise).ToString();
+                    evenWeek = nameSplit.Last().Contains("P");
+                    initials = textBlocks[2];
+                    break;
+                case "WF":
+                    group = textBlocks[1][1].ToString();
+                    initials = textBlocks[3];
+                    break;
+                default:
                 {
-                    var groupIndex = textBlock.LastIndexOf("-", StringComparison.Ordinal);
-                    group = groupIndex >= 0 ? textBlock[..groupIndex] : textBlock;
-                    switch (group[0])
+                    foreach (var textBlock in textBlocks)
                     {
-                        case (char)SubjectType.Lecture:
-                            group = $"{group}01";
-                            break;
-                        case (char)SubjectType.Seminars:
-                        case (char)SubjectType.Exercise:
-                            group = $"{group}0{groupNumber}";
-                            break;
+                        if (textBlock is "-P" or "P-" && group != string.Empty)
+                            initials = textBlock;
+                        else if (Regex.IsMatch(textBlock, "^[(][MK][)]") ||
+                                 Regex.IsMatch(textBlock, "[WKLĆSP]0?[0-9]?-"))
+                        {
+                            var groupIndex = textBlock.LastIndexOf("-", StringComparison.Ordinal);
+                            group = groupIndex >= 0 ? textBlock[..groupIndex] : textBlock;
+                            switch (group[0])
+                            {
+                                case (char)SubjectType.Lecture:
+                                    group = $"{group}01";
+                                    break;
+                                case (char)SubjectType.Seminars:
+                                case (char)SubjectType.Exercise:
+                                    group = $"{group}0{groupNumber}";
+                                    break;
+                            }
+
+                            if (textBlock.Contains("-P") || textBlock.Contains("-(P") || textBlock.Contains("-p"))
+                                evenWeek = true;
+                            else if (textBlock.Contains("-N") || textBlock.Contains("-(N") || textBlock.Contains("-n"))
+                                evenWeek = false;
+                        }
+                        else if (textBlock.StartsWith("#") || textBlock.Length == 2) initials = textBlock;
                     }
 
-                    if (textBlock.Contains("-P") || textBlock.Contains("-(P") || textBlock.Contains("-p"))
-                        evenWeek = true;
-                    else if (textBlock.Contains("-N") || textBlock.Contains("-(N") || textBlock.Contains("-n"))
-                        evenWeek = false;
+                    break;
                 }
-                else if (textBlock.StartsWith("#") || textBlock.Length == 2) initials = textBlock;
             }
 
             var placeIndex = textBlocks.LastOrDefault()!.LastIndexOf("-", StringComparison.Ordinal);
@@ -130,7 +148,7 @@ public class SerializerService : ISerializerService
             };
             var possibleDuplicate = list.Find(x =>
                 x.DayOfWeek == blockModel.DayOfWeek && x.Name == name && x.Group == group && x.Place == place &&
-                x.EvenWeek == evenWeek);
+                x.EvenWeek == evenWeek && x.Initials!.Equals(initials, StringComparison.OrdinalIgnoreCase));
 
             if (possibleDuplicate != null)
                 possibleDuplicate.Blocks++;

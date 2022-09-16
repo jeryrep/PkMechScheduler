@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
+
 <Shell
     x:Class="PkMechScheduler.Frontend.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -13,12 +14,12 @@
         <ShellContent Title="Rozkład zajęć" ContentTemplate="{DataTemplate pages:SchedulePage}" Route="SchedulePage"/>
     </FlyoutItem>
     <FlyoutItem Title="Nauczyciel">
-        <ShellContent Title="Rozkład zajęć nauczyciela" ContentTemplate="{DataTemplate pages:TeacherSchedulePage}"></ShellContent>
+        <ShellContent Title="Rozkład zajęć nauczyciela" ContentTemplate="{DataTemplate pages:TeacherSchedulePage}"/>
     </FlyoutItem>
     <FlyoutItem Title="Sale">
-        <ShellContent Title="Zajęcia w sali" ContentTemplate="{DataTemplate pages:RoomPage}"></ShellContent>
+        <ShellContent Title="Zajęcia w sali" ContentTemplate="{DataTemplate pages:RoomPage}"/>
     </FlyoutItem>
     <FlyoutItem Title="Konfigurator">
-        <ShellContent Title="Konfigurator" ContentTemplate="{DataTemplate pages:ConfiguratorPage}"></ShellContent>
+        <ShellContent Title="Konfigurator" ContentTemplate="{DataTemplate pages:ConfiguratorPage}"/>
     </FlyoutItem>
 </Shell>
