@@ -1,4 +1,5 @@
-﻿#if WINDOWS
+﻿using PkMechScheduler.Frontend.Enums;
+#if WINDOWS
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Windows.Graphics;
@@ -25,6 +26,19 @@ public partial class App
             appWindow.Resize(new SizeInt32(WindowWidth, WindowHeight));
 #endif
         });
+
+        if (!Preferences.ContainsKey(((char)SubjectType.Exercise).ToString()))
+            Preferences.Set(((char)SubjectType.Exercise).ToString(), "Ć01");
+        if (!Preferences.ContainsKey(((char)SubjectType.Lecture).ToString()))
+            Preferences.Set(((char)SubjectType.Lecture).ToString(), "W01");
+        if (!Preferences.ContainsKey(((char)SubjectType.Laboratory).ToString()))
+            Preferences.Set(((char)SubjectType.Laboratory).ToString(), "L01");
+        if (!Preferences.ContainsKey(((char)SubjectType.ComputersLaboratory).ToString()))
+            Preferences.Set(((char)SubjectType.ComputersLaboratory).ToString(), "K01");
+        if (!Preferences.ContainsKey(((char)SubjectType.Projects).ToString()))
+            Preferences.Set(((char)SubjectType.Projects).ToString(), "P01");
+        if (!Preferences.ContainsKey(((char)SubjectType.Seminars).ToString()))
+            Preferences.Set(((char)SubjectType.Seminars).ToString(), "S01");
 
         MainPage = new AppShell();
     }

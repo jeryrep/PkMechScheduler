@@ -23,12 +23,9 @@ public partial class SchedulePage
         SeminarsLayout.IsVisible = _schedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Seminars).ToString()));
         WfLayout.IsVisible = _schedule.Any(x => x.Group is "K" or "M");
         EnglishLayout.IsVisible = _schedule.Any(x => x.Group == ((char)SubjectType.Exercise).ToString());
-        /*var border = new Border();
-        border.SetAppThemeColor(Border.StrokeProperty, Color.FromArgb("#512BD4"), Color.FromArgb("#512BD4"));*/
         var rect = new Rectangle
         {
             Opacity = 0.05,
-            ZIndex = 1,
             StrokeThickness = 2
         };
         rect.SetAppThemeColor(BackgroundColorProperty, Color.FromArgb("#ACACAC"), Color.FromArgb("#ACACAC"));
