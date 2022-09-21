@@ -9,7 +9,7 @@ namespace PkMechScheduler.Frontend;
 public partial class App
 {
     private const int WindowWidth = 1366;
-    private const int WindowHeight = 1024;
+    private const int WindowHeight = 766;
     public App()
     {
         InitializeComponent();

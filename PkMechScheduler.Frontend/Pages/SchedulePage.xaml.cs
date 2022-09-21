@@ -23,6 +23,18 @@ public partial class SchedulePage
         SeminarsLayout.IsVisible = _schedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Seminars).ToString()));
         WfLayout.IsVisible = _schedule.Any(x => x.Group is "K" or "M");
         EnglishLayout.IsVisible = _schedule.Any(x => x.Group == ((char)SubjectType.Exercise).ToString());
+        /*var border = new Border();
+        border.SetAppThemeColor(Border.StrokeProperty, Color.FromArgb("#512BD4"), Color.FromArgb("#512BD4"));*/
+        var rect = new Rectangle
+        {
+            Opacity = 0.05,
+            ZIndex = 1,
+            StrokeThickness = 2
+        };
+        rect.SetAppThemeColor(BackgroundColorProperty, Color.FromArgb("#ACACAC"), Color.FromArgb("#ACACAC"));
+        rect.SetAppThemeColor(Shape.StrokeProperty, Color.FromArgb("#FFFFFF"), Color.FromArgb("#FFFFFF"));
+        ScheduleGrid.Add(rect, (int)DateTime.Now.DayOfWeek, 1);
+        ScheduleGrid.SetRowSpan(rect, 16);
         GenerateSchedule();
     }
 
@@ -50,6 +62,7 @@ public partial class SchedulePage
             {
                 Background = Color.FromArgb("#6E6E6E"),
                 Padding = 5,
+                CornerRadius = 4,
                 Content = new Label
                 {
                     FormattedText = new FormattedString
@@ -77,6 +90,7 @@ public partial class SchedulePage
                     VerticalTextAlignment = TextAlignment.Center
                 }
             };
+            block.SetAppThemeColor(Microsoft.Maui.Controls.Frame.BorderColorProperty, Color.FromArgb("#C8C8C8"), Color.FromArgb("#404040"));
             var gesture = new TapGestureRecognizer();
             gesture.Tapped += async (_, _) => {
                 await DisplayAlert(blockModel.Name, $"Grupa: {blockModel.Group}\n" +
@@ -86,7 +100,7 @@ public partial class SchedulePage
             };
             block.GestureRecognizers.Add(gesture);
             _frames.Add(block);
-            ScheduleGrid.Add(block, (int)blockModel.DayOfWeek + 1, blockModel.Number + 1);
+            ScheduleGrid.Add(block, (int)blockModel.DayOfWeek, blockModel.Number + 1);
             ScheduleGrid.SetRowSpan(block, blockModel.Blocks);
             _timeLine = new Line
             {
@@ -97,7 +111,7 @@ public partial class SchedulePage
             };
             var (rowNum, breakTime) = GetCurrentHourRow();
             if (!breakTime) _timeLine.VerticalOptions = LayoutOptions.Center;
-            ScheduleGrid.Add(_timeLine, 2, rowNum + 1);
+            ScheduleGrid.Add(_timeLine, 1, rowNum + 1);
             ScheduleGrid.SetColumnSpan(_timeLine, ScheduleGrid.ColumnDefinitions.Count);
         }
     }

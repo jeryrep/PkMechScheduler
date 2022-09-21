@@ -82,7 +82,7 @@ public partial class WelcomePage
         AddWfPicker(allInOne);
     }
 
-    private void AddWfPicker(List<BlockModel> blocks)
+    private void AddWfPicker(IEnumerable<BlockModel> blocks)
     {
         var filteredBlocks = blocks.Where(x => x.Name == "WF").ToList();
         if (filteredBlocks.Count == 0) return;
