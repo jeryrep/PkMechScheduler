@@ -1,7 +1,5 @@
-﻿using Microsoft.Maui.Controls.Shapes;
-using PkMechScheduler.Database.Models;
+﻿using PkMechScheduler.Database.Models;
 using PkMechScheduler.Frontend.Enums;
-using PkMechScheduler.Frontend.Helpers;
 using PkMechScheduler.Frontend.Interfaces;
 
 namespace PkMechScheduler.Frontend.Pages;
@@ -9,8 +7,6 @@ namespace PkMechScheduler.Frontend.Pages;
 public partial class SchedulePage
 {
     private readonly IDatabaseService _databaseService;
-    private readonly List<Frame> _frames = new();
-    private Line _timeLine = new();
     protected override async void OnNavigatedTo(NavigatedToEventArgs args)
     {
         var fullSchedule = await _databaseService.GetBlocks(Preferences.Get("Course", string.Empty));
@@ -22,19 +18,6 @@ public partial class SchedulePage
         SeminarsLayout.IsVisible = fullSchedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Seminars).ToString()));
         WfLayout.IsVisible = fullSchedule.Any(x => x.Group is "K" or "M");
         EnglishLayout.IsVisible = fullSchedule.Any(x => x.Group == ((char)SubjectType.Exercise).ToString());
-        if (DateTime.Now.DayOfWeek is not DayOfWeek.Saturday and not DayOfWeek.Sunday)
-        {
-            var rect = new Rectangle
-            {
-                Opacity = 0.05,
-                StrokeThickness = 2
-            };
-            rect.SetAppThemeColor(BackgroundColorProperty, Color.FromArgb("#ACACAC"), Color.FromArgb("#ACACAC"));
-            rect.SetAppThemeColor(Shape.StrokeProperty, Color.FromArgb("#FFFFFF"), Color.FromArgb("#FFFFFF"));
-            ScheduleGrid.Add(rect, (int)DateTime.Now.DayOfWeek, 1);
-            ScheduleGrid.SetRowSpan(rect, 16);
-        }
-        GenerateSchedule();
     }
 
     protected override void OnNavigatedFrom(NavigatedFromEventArgs args)
@@ -53,96 +36,10 @@ public partial class SchedulePage
     {
         _databaseService = Application.Current?.Handler.MauiContext?.Services.GetService<IDatabaseService>();
         InitializeComponent();
+        GenerateSchedule();
     }
 
-    private void PrepareScheduleGrid()
-    {
-        _frames.ForEach(x => ScheduleGrid.Remove(x));
-        _frames.Clear();
-        ScheduleGrid.Remove(_timeLine);
-    }
-
-    private void GenerateSchedule()
-    {
-        PrepareScheduleGrid();
-        var schedule = _databaseService.GetBlocks(Preferences.Get("Course", string.Empty)).Result.Where(FiltersApply);
-
-        foreach (var blockModel in schedule)
-        {
-            var block = new Frame
-            {
-                Background = Color.FromArgb("#6E6E6E"),
-                Padding = 5,
-                CornerRadius = 4,
-                Content = new Label
-                {
-                    FormattedText = new FormattedString
-                    {
-                        Spans =
-                        {
-                            new Span
-                            {
-                                Text = $"{blockModel.Name} "
-                            },
-                            new Span
-                            {
-                                Text = $"{blockModel.Group}\n",
-                                FontAttributes = FontAttributes.Italic
-                            },
-                            new Span
-                            {
-                                Text = blockModel.Place,
-                                FontAttributes = FontAttributes.Bold
-                            }
-                        }
-                    },
-                    TextColor = Color.FromArgb("#100F0F"),
-                    HorizontalTextAlignment = TextAlignment.Center,
-                    VerticalTextAlignment = TextAlignment.Center
-                }
-            };
-            block.SetAppThemeColor(Microsoft.Maui.Controls.Frame.BorderColorProperty, Color.FromArgb("#C8C8C8"), Color.FromArgb("#404040"));
-            var gesture = new TapGestureRecognizer();
-            gesture.Tapped += async (_, _) => {
-                await DisplayAlert(blockModel.Name, $"Grupa: {blockModel.Group}\n" +
-                                                    $"Sala: {blockModel.Place}\n" +
-                                                    $"Tydzień: {blockModel.EvenWeek switch { true => "Parzysty", false => "Nieparzysty", _ => "Oba" }}\n" +
-                                                    $"Liczba godzin: {blockModel.Blocks}", "OK");
-            };
-            block.GestureRecognizers.Add(gesture);
-            _frames.Add(block);
-            ScheduleGrid.Add(block, (int)blockModel.DayOfWeek, blockModel.Number + 1);
-            ScheduleGrid.SetRowSpan(block, blockModel.Blocks);
-            _timeLine = new Line
-            {
-                X2 = DeviceDisplay.MainDisplayInfo.Width,
-                Stroke = Brush.OrangeRed,
-                StrokeDashArray = new DoubleCollection(new[] { 1.0, 1.0 }),
-                StrokeDashOffset = 5
-            };
-            var (rowNum, breakTime) = GetCurrentHourRow();
-            if (!breakTime) _timeLine.VerticalOptions = LayoutOptions.Center;
-            ScheduleGrid.Add(_timeLine, 1, rowNum + 1);
-            ScheduleGrid.SetColumnSpan(_timeLine, ScheduleGrid.ColumnDefinitions.Count);
-        }
-    }
-
-    private static (int, bool) GetCurrentHourRow()
-    {
-        if (DateTime.Now < DateTime.Parse(ConstantHelper.Hours.First().Split("-").First()))
-            return (0, true);
-        if (DateTime.Now > DateTime.Parse(ConstantHelper.Hours.Last().Split("-").Last()))
-            return (ConstantHelper.Hours.Count, true);
-        foreach (var (h, i) in ConstantHelper.Hours.Select((h, i) => (h, i)))
-        {
-            var timespan = h.Split("-");
-            if (DateTime.Now > DateTime.Parse(timespan[0]) && DateTime.Now < DateTime.Parse(timespan[1]))
-                return (i, false);
-            if (DateTime.Now.Subtract(new TimeSpan(0, 15, 0)) < DateTime.Parse(timespan[1]))
-                return (i + 1, true);
-        }
-        return (0, false);
-    }
+    private async Task GenerateSchedule() => ScheduleGridView.GenerateSchedule((await _databaseService.GetBlocks(Preferences.Get("Course", string.Empty))).Where(FiltersApply));
 
     private bool FiltersApply(BlockModel model) =>
         (model.EvenWeek == null || model.EvenWeek == WeekLabel.Text.StartsWith("P")) &&
@@ -155,9 +52,9 @@ public partial class SchedulePage
          (model.Name == "WF" && Preferences.Get("WF", string.Empty) == model.Group && WfCheckbox.IsChecked) || 
          (model.Name == "J angielski" && EnglishCheckbox.IsChecked));
 
-    private void UpdateSchedule(object sender, EventArgs e) => GenerateSchedule();
+    private async void UpdateSchedule(object sender, EventArgs e) => await GenerateSchedule();
 
-    private void RightBtnClicked(object sender, EventArgs e)
+    private async void RightBtnClicked(object sender, EventArgs e)
     {
         WeekLabel!.Text = WeekLabel.Text switch
         {
@@ -165,10 +62,10 @@ public partial class SchedulePage
             "Nieparzysty" => "Parzysty",
             _ => "Nieparzysty"
         };
-        GenerateSchedule();
+        await GenerateSchedule();
     }
 
-    private void LeftBtnClicked(object sender, EventArgs e)
+    private async void LeftBtnClicked(object sender, EventArgs e)
     {
         WeekLabel!.Text = WeekLabel.Text switch
         {
@@ -176,6 +73,6 @@ public partial class SchedulePage
             "Nieparzysty" => "Mieszany",
             _ => "Parzysty"
         };
-        GenerateSchedule();
+        await GenerateSchedule();
     }
 }

@@ -90,6 +90,9 @@
 	  <Compile Update="Pages\WelcomePage.xaml.cs">
 	    <DependentUpon>WelcomePage.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Views\ScheduleGridView.xaml.cs">
+	    <DependentUpon>ScheduleGridView.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\StudentFilterView.xaml.cs">
 	    <DependentUpon>StudentFilterView.xaml</DependentUpon>
 	  </Compile>
