@@ -59,6 +59,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Resources\Images\arrow_left_thick.png" />
+	  <None Remove="Resources\Images\arrow_right_thick.png" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <PackageReference Include="AngleSharp" Version="0.17.1" />
 	  <PackageReference Include="CommunityToolkit.Maui" Version="1.3.0" />
 	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.0-rc.1.22426.7" />

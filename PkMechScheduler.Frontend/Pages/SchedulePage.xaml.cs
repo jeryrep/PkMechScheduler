@@ -10,29 +10,43 @@ public partial class SchedulePage
 {
     private readonly IDatabaseService _databaseService;
     private readonly List<Frame> _frames = new();
-    private List<BlockModel> _schedule;
     private Line _timeLine = new();
-    protected override void OnNavigatedTo(NavigatedToEventArgs args)
+    protected override async void OnNavigatedTo(NavigatedToEventArgs args)
     {
-        _schedule = _databaseService.GetBlocks(Preferences.Get("Course", string.Empty)).Result.Where(FiltersApply).ToList();
-        LectureLayout.IsVisible = _schedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Lecture).ToString()));
-        ExerciseLayout.IsVisible = _schedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Exercise).ToString()));
-        LaboratoryLayout.IsVisible = _schedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Laboratory).ToString()));
-        ComputersLaboratoryLayout.IsVisible = _schedule.Any(x => x.Group!.StartsWith(((char)SubjectType.ComputersLaboratory).ToString()));
-        ProjectsLayout.IsVisible = _schedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Projects).ToString()));
-        SeminarsLayout.IsVisible = _schedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Seminars).ToString()));
-        WfLayout.IsVisible = _schedule.Any(x => x.Group is "K" or "M");
-        EnglishLayout.IsVisible = _schedule.Any(x => x.Group == ((char)SubjectType.Exercise).ToString());
-        var rect = new Rectangle
+        var fullSchedule = await _databaseService.GetBlocks(Preferences.Get("Course", string.Empty));
+        LectureLayout.IsVisible = fullSchedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Lecture).ToString()));
+        ExerciseLayout.IsVisible = fullSchedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Exercise).ToString()));
+        LaboratoryLayout.IsVisible = fullSchedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Laboratory).ToString()));
+        ComputersLaboratoryLayout.IsVisible = fullSchedule.Any(x => x.Group!.StartsWith(((char)SubjectType.ComputersLaboratory).ToString()));
+        ProjectsLayout.IsVisible = fullSchedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Projects).ToString()));
+        SeminarsLayout.IsVisible = fullSchedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Seminars).ToString()));
+        WfLayout.IsVisible = fullSchedule.Any(x => x.Group is "K" or "M");
+        EnglishLayout.IsVisible = fullSchedule.Any(x => x.Group == ((char)SubjectType.Exercise).ToString());
+        if (DateTime.Now.DayOfWeek is not DayOfWeek.Saturday and not DayOfWeek.Sunday)
         {
-            Opacity = 0.05,
-            StrokeThickness = 2
-        };
-        rect.SetAppThemeColor(BackgroundColorProperty, Color.FromArgb("#ACACAC"), Color.FromArgb("#ACACAC"));
-        rect.SetAppThemeColor(Shape.StrokeProperty, Color.FromArgb("#FFFFFF"), Color.FromArgb("#FFFFFF"));
-        ScheduleGrid.Add(rect, (int)DateTime.Now.DayOfWeek, 1);
-        ScheduleGrid.SetRowSpan(rect, 16);
+            var rect = new Rectangle
+            {
+                Opacity = 0.05,
+                StrokeThickness = 2
+            };
+            rect.SetAppThemeColor(BackgroundColorProperty, Color.FromArgb("#ACACAC"), Color.FromArgb("#ACACAC"));
+            rect.SetAppThemeColor(Shape.StrokeProperty, Color.FromArgb("#FFFFFF"), Color.FromArgb("#FFFFFF"));
+            ScheduleGrid.Add(rect, (int)DateTime.Now.DayOfWeek, 1);
+            ScheduleGrid.SetRowSpan(rect, 16);
+        }
         GenerateSchedule();
+    }
+
+    protected override void OnNavigatedFrom(NavigatedFromEventArgs args)
+    {
+        LectureCheckbox.IsChecked = true;
+        ExerciseCheckbox.IsChecked = true;
+        LaboratoryCheckbox.IsChecked = true;
+        ComputersLaboratoryCheckbox.IsChecked = true;
+        ProjectCheckbox.IsChecked = true;
+        SeminarsCheckbox.IsChecked = true;
+        WfCheckbox.IsChecked = true;
+        EnglishCheckbox.IsChecked = true;
     }
 
     public SchedulePage()
@@ -92,7 +106,7 @@ public partial class SchedulePage
             gesture.Tapped += async (_, _) => {
                 await DisplayAlert(blockModel.Name, $"Grupa: {blockModel.Group}\n" +
                                                     $"Sala: {blockModel.Place}\n" +
-                                                    $"Tydzień: {blockModel.EvenWeek switch { true => "Parzysty", false => "Nieparzysty", _ => "Brak informacji" }}\n" +
+                                                    $"Tydzień: {blockModel.EvenWeek switch { true => "Parzysty", false => "Nieparzysty", _ => "Oba" }}\n" +
                                                     $"Liczba godzin: {blockModel.Blocks}", "OK");
             };
             block.GestureRecognizers.Add(gesture);
@@ -118,7 +132,7 @@ public partial class SchedulePage
         if (DateTime.Now < DateTime.Parse(ConstantHelper.Hours.First().Split("-").First()))
             return (0, true);
         if (DateTime.Now > DateTime.Parse(ConstantHelper.Hours.Last().Split("-").Last()))
-            return (ConstantHelper.Hours.Count - 1, true);
+            return (ConstantHelper.Hours.Count, true);
         foreach (var (h, i) in ConstantHelper.Hours.Select((h, i) => (h, i)))
         {
             var timespan = h.Split("-");
@@ -131,7 +145,7 @@ public partial class SchedulePage
     }
 
     private bool FiltersApply(BlockModel model) =>
-        (model.EvenWeek == EvenWeekRadio.IsChecked || model.EvenWeek == null) &&
+        (model.EvenWeek == null || model.EvenWeek == WeekLabel.Text.StartsWith("P")) &&
         ((model.Group == Preferences.Get(((char)SubjectType.ComputersLaboratory).ToString(), string.Empty) && ComputersLaboratoryCheckbox.IsChecked) ||
          (model.Group == Preferences.Get(((char)SubjectType.Exercise).ToString(), string.Empty) && ExerciseCheckbox.IsChecked) ||
          (model.Group == Preferences.Get(((char)SubjectType.Laboratory).ToString(), string.Empty) && LaboratoryCheckbox.IsChecked) ||
@@ -142,4 +156,26 @@ public partial class SchedulePage
          (model.Name == "J angielski" && EnglishCheckbox.IsChecked));
 
     private void UpdateSchedule(object sender, EventArgs e) => GenerateSchedule();
+
+    private void RightBtnClicked(object sender, EventArgs e)
+    {
+        WeekLabel!.Text = WeekLabel.Text switch
+        {
+            "Parzysty" => "Mieszany",
+            "Nieparzysty" => "Parzysty",
+            _ => "Nieparzysty"
+        };
+        GenerateSchedule();
+    }
+
+    private void LeftBtnClicked(object sender, EventArgs e)
+    {
+        WeekLabel!.Text = WeekLabel.Text switch
+        {
+            "Parzysty" => "Nieparzysty",
+            "Nieparzysty" => "Mieszany",
+            _ => "Parzysty"
+        };
+        GenerateSchedule();
+    }
 }
