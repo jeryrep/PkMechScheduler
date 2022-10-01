@@ -17,15 +17,16 @@
         <Label Text="Wybierz tryb aplikacji:" HorizontalOptions="Center"/>
         <RadioButton Content="Student" HorizontalOptions="Center" GroupName="DefaultConfig" CheckedChanged="OnStudentChecked" x:Name="StudentButton"/>
         <VerticalStackLayout x:Name="StudentConfig" HorizontalOptions="Center" Padding="0, 10, 0, 10" IsVisible="False">
-            <Picker x:Name="GroupsPicker" HorizontalOptions="Center" SelectedIndexChanged="UpdateSubjects" WidthRequest="100"/>
+            <Picker x:Name="GroupsPicker" HorizontalOptions="Center" SelectedIndexChanged="UpdateSubjects" WidthRequest="100" VerticalOptions="Center"/>
             <VerticalStackLayout x:Name="GroupsSelect"/>
         </VerticalStackLayout>
         <RadioButton Content="Profesor" HorizontalOptions="Center" GroupName="DefaultConfig" x:Name="TeacherButton" CheckedChanged="OnTeacherChecked"/>
         <VerticalStackLayout x:Name="TeacherConfig" IsVisible="False" HorizontalOptions="Center">
+            <Picker x:Name="TeacherPicker" HorizontalOptions="Center" SelectedIndexChanged="UpdateTeacher" WidthRequest="200"/>
         </VerticalStackLayout>
         <RadioButton Content="Dziekanat" HorizontalOptions="Center" GroupName="DefaultConfig" x:Name="DeansOfficeButton" CheckedChanged="OnDeansOfficeChecked"/>
-        <VerticalStackLayout x:Name="DeansOfficeConfig" IsVisible="False" HorizontalOptions="Center">
-        </VerticalStackLayout>
         <Button Text="Zapisz" Clicked="SavePreferences" HorizontalOptions="Center" WidthRequest="100"/>
+        <Label Text="Niepoprawne dane?" HorizontalOptions="Center"/>
+        <Button HorizontalOptions="Center" Clicked="ForceUpdate" Text="Aktualizuj"/>
     </VerticalStackLayout>
 </ContentPage>

@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 using AngleSharp.Dom;
 using Microsoft.EntityFrameworkCore;
 using PkMechScheduler.Database;
@@ -10,14 +11,14 @@ using IElement = AngleSharp.Dom.IElement;
 
 namespace PkMechScheduler.Frontend.Services;
 
-public class SerializerService : ISerializerService
+public partial class SerializerService : ISerializerService
 {
     private readonly SchedulerContext _context;
     public SerializerService(SchedulerContext context) => _context = context;
 
     public async Task AddScheduleToDb(IDocument document)
     {
-        var groupNumber = Regex.Replace(document.QuerySelector("span.tytulnapis")?.InnerHtml!, "<.*?>", string.Empty)
+        var groupNumber = ClearTagRegex().Replace(document.QuerySelector("span.tytulnapis")?.InnerHtml!, string.Empty)
             .Last();
         var table = document.QuerySelector("table.tabela");
         var rows = table?.QuerySelectorAll("tr");
@@ -68,13 +69,14 @@ public class SerializerService : ISerializerService
             HandleBlock(row, groupNumber, list, block, timeSpan);
     }
 
-    private static void HandleBlock((IElement row, int i) row, char groupNumber, List<BlockModel> list, (IElement cell, int j) block, string[] timeSpan)
+    private static void HandleBlock((IElement row, int i) row, char groupNumber, List<BlockModel> list,
+        (IElement cell, int j) block, string[] timeSpan)
     {
         if (block.cell.InnerHtml.Contains("&nbsp;"))
             return;
         foreach (var subject in block.cell.InnerHtml.Split("<br>"))
         {
-            var textBlocks = Regex.Replace(subject, "<.*?>", string.Empty).Split(" ");
+            var textBlocks = ClearTagRegex().Replace(subject, string.Empty).Split(" ");
 
             var index = textBlocks.FirstOrDefault()!.LastIndexOf("-", StringComparison.Ordinal);
             var name = index >= 0 ? textBlocks.FirstOrDefault()?[..index] : textBlocks.FirstOrDefault();
@@ -87,7 +89,7 @@ public class SerializerService : ISerializerService
                     var nameSplit = textBlocks[1].Split("-");
                     name = string.Join(" ", name, nameSplit.First());
                     group = ((char)SubjectType.Exercise).ToString();
-                    evenWeek = nameSplit.Last().Contains("P");
+                    evenWeek = nameSplit.Last().Contains('P');
                     initials = textBlocks[2];
                     break;
                 case "WF":
@@ -100,8 +102,8 @@ public class SerializerService : ISerializerService
                     {
                         if (textBlock is "-P" or "P-" && group != string.Empty)
                             initials = textBlock;
-                        else if (Regex.IsMatch(textBlock, "^[(][MK][)]") ||
-                                 Regex.IsMatch(textBlock, "[WKLĆSP]0?[0-9]?-"))
+                        else if (PeGenderRegex().IsMatch(textBlock) ||
+                                 GroupRegex().IsMatch(textBlock))
                         {
                             var groupIndex = textBlock.LastIndexOf("-", StringComparison.Ordinal);
                             group = groupIndex >= 0 ? textBlock[..groupIndex] : textBlock;
@@ -166,11 +168,80 @@ public class SerializerService : ISerializerService
             var pTo = paragraph[(pFrom + 1)..].IndexOf("\"", StringComparison.Ordinal);
             await _context.Groups.AddAsync(new Group
             {
-                Name = Regex.Replace(paragraph, "<.*?>", string.Empty),
+                Name = ClearTagRegex().Replace(paragraph, string.Empty),
                 Link = paragraph.Substring(pFrom + 1, pTo)
+            });
+        }
+
+        var teachers = document.QuerySelector("div#nauczyciele")?.QuerySelectorAll("p");
+        foreach (var teacher in teachers!.Select(x => x.InnerHtml))
+        {
+            var pFrom = teacher.IndexOf("/", StringComparison.Ordinal);
+            var pTo = teacher[(pFrom + 1)..].IndexOf("\"", StringComparison.Ordinal);
+            var innerTexts = ClearTagRegex().Replace(teacher, string.Empty).Split(" ");
+            var index = innerTexts.FirstOrDefault()!.LastIndexOf("-", StringComparison.Ordinal);
+            var name = index >= 0 ? innerTexts.FirstOrDefault()?[..index] : innerTexts.FirstOrDefault();
+            await _context.Teachers.AddAsync(new Teacher
+            {
+                Name = name,
+                Link = teacher.Substring(pFrom + 1, pTo),
+                EvenWeek = innerTexts.FirstOrDefault()!.LastOrDefault() == 'p'
+            });
+        }
+
+        var rooms = document.QuerySelector("div#sale")?.QuerySelectorAll("p");
+        foreach (var room in rooms!.Select(x => x.InnerHtml).Skip(1))
+        {
+            var innerText = ClearTagRegex().Replace(room, string.Empty);
+            var innerTexts = innerText.Split(" ").ToList();
+            if ((innerTexts.Count == 1 && (innerTexts.FirstOrDefault()!.LastOrDefault() is not 'p' and not 'n' ||
+                                            innerTexts.FirstOrDefault()!.Contains("--------"))) ||
+                (innerTexts.Count == 2 && OrganizationalUnitRegex().IsMatch(innerTexts.LastOrDefault()!) && 
+                 !OrganizationalUnitRegex().IsMatch(innerTexts.FirstOrDefault()!))) continue;
+            var pFrom = room.IndexOf("/", StringComparison.Ordinal);
+            var pTo = room[(pFrom + 1)..].IndexOf("\"", StringComparison.Ordinal);
+
+            var index = innerTexts.FirstOrDefault()!.LastIndexOf("-", StringComparison.Ordinal);
+            var name = index >= 0 ? innerTexts.FirstOrDefault()?[..index] : innerTexts.FirstOrDefault();
+            var organizationalUnit = "WM";
+            if (innerTexts.Count == 1) 
+                organizationalUnit = name;
+            else if (OrganizationalUnitRegex().IsMatch(innerTexts[1])) 
+                organizationalUnit = innerTexts[1];
+            var description = string.Empty;
+            if (innerText.Contains("w tyg."))
+            {
+                innerTexts.RemoveRange(innerTexts.Count - 4, 3);
+                var stringBuilder = new StringBuilder();
+                foreach (var text in innerTexts.Skip(1))
+                {
+                    if (OrganizationalUnitRegex().IsMatch(text)) continue;
+                    stringBuilder.Append($"{text} ");
+                }
+                description = stringBuilder.ToString();
+            }
+            await _context.Rooms.AddAsync(new Room
+            {
+                Name = name,
+                Description = description,
+                Link = room.Substring(pFrom + 1, pTo),
+                OrganizationalUnit = organizationalUnit,
+                EvenWeek = innerTexts.FirstOrDefault()!.LastOrDefault() == 'p'
             });
         }
 
         await _context.SaveChangesAsync();
     }
+
+    [GeneratedRegex("<.*?>")]
+    private static partial Regex ClearTagRegex();
+
+    [GeneratedRegex("^M-?[1-9]")]
+    private static partial Regex OrganizationalUnitRegex();
+
+    [GeneratedRegex("^[(][MK][)]")]
+    private static partial Regex PeGenderRegex();
+
+    [GeneratedRegex("[WKLĆSP]0?[0-9]?-")]
+    private static partial Regex GroupRegex();
 }

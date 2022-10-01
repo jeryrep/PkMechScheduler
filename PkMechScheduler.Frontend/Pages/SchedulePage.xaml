@@ -4,54 +4,50 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:views="clr-namespace:PkMechScheduler.Frontend.Views"
              x:Class="PkMechScheduler.Frontend.Pages.SchedulePage">
-    <ContentPage.Content>
-        <VerticalStackLayout HorizontalOptions="Center">
-            <VerticalStackLayout HorizontalOptions="Center">
+    <VerticalStackLayout HorizontalOptions="Center">
+        <HorizontalStackLayout HorizontalOptions="Center">
+            <ImageButton x:Name="LeftBtn" Source="arrow_left_thick.png" Clicked="LeftBtnClicked" />
+            <VerticalStackLayout>
+                <Label x:Name="WeekLabel" Text="Parzysty" FontSize="40" HorizontalTextAlignment="Center" />
                 <HorizontalStackLayout HorizontalOptions="Center">
-                    <ImageButton x:Name="LeftBtn" Source="arrow_left_thick.png" Clicked="LeftBtnClicked"/>
-                    <VerticalStackLayout>
-                        <Label x:Name="WeekLabel" Text="Parzysty" FontSize="40" HorizontalTextAlignment="Center"/>
-                        <HorizontalStackLayout HorizontalOptions="Center">
-                            <VerticalStackLayout x:Name="LectureLayout">
-                                <CheckBox x:Name="LectureCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule" />
-                                <Label Text="W" VerticalTextAlignment="Center" HorizontalTextAlignment="Center"/>
-                            </VerticalStackLayout>
-                            <VerticalStackLayout x:Name="ExerciseLayout">
-                                <CheckBox x:Name="ExerciseCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule" />
-                                <Label Text="Ć" VerticalTextAlignment="Center" HorizontalTextAlignment="Center"/>
-                            </VerticalStackLayout>
-                            <VerticalStackLayout x:Name="LaboratoryLayout">
-                                <CheckBox x:Name="LaboratoryCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule" />
-                                <Label Text="L" VerticalTextAlignment="Center" HorizontalTextAlignment="Center"/>
-                            </VerticalStackLayout>
-                            <VerticalStackLayout x:Name="ComputersLaboratoryLayout">
-                                <CheckBox x:Name="ComputersLaboratoryCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule" />
-                                <Label Text="LK" VerticalTextAlignment="Center" HorizontalTextAlignment="Center"/>
-                            </VerticalStackLayout>
-                            <VerticalStackLayout x:Name="ProjectsLayout">
-                                <CheckBox x:Name="ProjectCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule" />
-                                <Label Text="P" VerticalTextAlignment="Center" HorizontalTextAlignment="Center"/>
-                            </VerticalStackLayout>
-                            <VerticalStackLayout x:Name="SeminarsLayout">
-                                <CheckBox x:Name="SeminarsCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule" />
-                                <Label Text="S" VerticalTextAlignment="Center" HorizontalTextAlignment="Center"/>
-                            </VerticalStackLayout>
-                            <VerticalStackLayout x:Name="EnglishLayout">
-                                <CheckBox x:Name="EnglishCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule" />
-                                <Label Text="Ang" VerticalTextAlignment="Center" HorizontalTextAlignment="Center"/>
-                            </VerticalStackLayout>
-                            <VerticalStackLayout x:Name="WfLayout">
-                                <CheckBox x:Name="WfCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule" />
-                                <Label Text="WF" VerticalTextAlignment="Center" HorizontalTextAlignment="Center"/>
-                            </VerticalStackLayout>
-                        </HorizontalStackLayout>
+                    <VerticalStackLayout x:Name="LectureLayout">
+                        <CheckBox x:Name="LectureCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule" />
+                        <Label Text="W" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
-                    <ImageButton x:Name="RightBtn" Source="arrow_right_thick.png" Clicked="RightBtnClicked"/>
+                    <VerticalStackLayout x:Name="ExerciseLayout">
+                        <CheckBox x:Name="ExerciseCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule" />
+                        <Label Text="Ć" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout x:Name="LaboratoryLayout">
+                        <CheckBox x:Name="LaboratoryCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule" />
+                        <Label Text="L" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout x:Name="ComputersLaboratoryLayout">
+                        <CheckBox x:Name="ComputersLaboratoryCheckbox" IsChecked="True"
+                                  CheckedChanged="UpdateSchedule" />
+                        <Label Text="LK" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout x:Name="ProjectsLayout">
+                        <CheckBox x:Name="ProjectCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule" />
+                        <Label Text="P" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout x:Name="SeminarsLayout">
+                        <CheckBox x:Name="SeminarsCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule" />
+                        <Label Text="S" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout x:Name="EnglishLayout">
+                        <CheckBox x:Name="EnglishCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule" />
+                        <Label Text="Ang" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout x:Name="WfLayout">
+                        <CheckBox x:Name="WfCheckbox" IsChecked="True" CheckedChanged="UpdateSchedule" />
+                        <Label Text="WF" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
                 </HorizontalStackLayout>
-                <StackLayout>
-                    <views:ScheduleGridView x:Name="ScheduleGridView"/>
-                </StackLayout>
             </VerticalStackLayout>
-        </VerticalStackLayout>
-    </ContentPage.Content>
+            <ImageButton x:Name="RightBtn" Source="arrow_right_thick.png" Clicked="RightBtnClicked" />
+        </HorizontalStackLayout>
+        <views:ScheduleGridView x:Name="ScheduleGridView" />
+        <Button Text="Aktualizuj" Clicked="ForceUpdate" WidthRequest="100" />
+    </VerticalStackLayout>
 </ContentPage>

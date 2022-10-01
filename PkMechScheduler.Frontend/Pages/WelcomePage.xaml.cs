@@ -16,6 +16,12 @@ public partial class WelcomePage
         var groups = _databaseService?.GetGroups().Result;
         GroupsPicker.ItemsSource = groups!.Select(g => g.Key[..3]).Distinct().ToList();
         GroupsPicker.SelectedItem = Preferences.ContainsKey("Course") ? Preferences.Get("Course", "11A") : "11A";
+        var teachers = _databaseService?.GetTeachers().Result;
+        TeacherPicker.ItemsSource = teachers!.Select(g => g.Key).Distinct().ToList();
+        if (Preferences.ContainsKey("Teacher"))
+            TeacherPicker.SelectedItem = Preferences.Get("Teacher", string.Empty);
+        else
+            TeacherPicker.SelectedIndex = 0;
         LanguagePicker.SelectedIndex = 0;
         switch (Preferences.Get("Mode", string.Empty))
         {
@@ -39,13 +45,19 @@ public partial class WelcomePage
 
     private async void SavePreferences(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync($"///{nameof(SchedulePage)}");
+        if (StudentButton.IsChecked)
+        {
+            await Shell.Current.GoToAsync($"///{nameof(SchedulePage)}");
+        } 
+        else if (TeacherButton.IsChecked)
+        {
+            await Shell.Current.GoToAsync($"///{nameof(TeacherSchedulePage)}");
+        }
     }
 
     private void OnStudentChecked(object sender, CheckedChangedEventArgs e)
     {
         Preferences.Set("Mode", "Student");
-        DeansOfficeConfig.IsVisible = false;
         TeacherConfig.IsVisible = false;
         StudentConfig.IsVisible = true;
     }
@@ -53,7 +65,6 @@ public partial class WelcomePage
     private void OnTeacherChecked(object sender, CheckedChangedEventArgs e)
     {
         Preferences.Set("Mode", "Teacher");
-        DeansOfficeConfig.IsVisible = false;
         StudentConfig.IsVisible = false;
         TeacherConfig.IsVisible = true;
     }
@@ -63,7 +74,6 @@ public partial class WelcomePage
         Preferences.Set("Mode", "DeansOffice");
         StudentConfig.IsVisible = false;
         TeacherConfig.IsVisible = false;
-        DeansOfficeConfig.IsVisible = true;
     }
 
     private async void UpdateSubjects(object sender, EventArgs e)
@@ -149,5 +159,20 @@ public partial class WelcomePage
         var picker = sender as Picker;
         var option = picker?.SelectedItem.ToString();
         Preferences.Set(option?[0].ToString()!, option);
+    }
+
+    private void UpdateTeacher(object sender, EventArgs e)
+    {
+        var picker = sender as Picker;
+        Preferences.Set("Teacher", picker?.SelectedItem.ToString());
+    }
+
+    private void ForceUpdate(object sender, EventArgs e)
+    {
+        var groups = _databaseService?.GetGroups(true).Result;
+        GroupsPicker.SelectedIndexChanged -= UpdateSubjects;
+        GroupsPicker.ItemsSource = groups!.Select(g => g.Key[..3]).Distinct().ToList();
+        GroupsPicker.SelectedIndexChanged += UpdateSubjects;
+        GroupsPicker.SelectedItem = Preferences.ContainsKey("Course") ? Preferences.Get("Course", "11A") : "11A";
     }
 }

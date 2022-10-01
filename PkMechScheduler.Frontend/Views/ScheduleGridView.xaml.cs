@@ -8,6 +8,7 @@ public partial class ScheduleGridView
 {
     private readonly List<Frame> _frames = new();
     private Line _timeLine = new();
+    private Rectangle _currentDay = new();
     public ScheduleGridView() => InitializeComponent();
 
     private void PrepareScheduleGrid()
@@ -15,16 +16,17 @@ public partial class ScheduleGridView
         _frames.ForEach(x => ScheduleGrid.Remove(x));
         _frames.Clear();
         ScheduleGrid.Remove(_timeLine);
+        ScheduleGrid.Remove(_currentDay);
         if (DateTime.Now.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday) return;
-        var rect = new Rectangle
+        _currentDay = new Rectangle
         {
             Opacity = 0.05,
             StrokeThickness = 2
         };
-        rect.SetAppThemeColor(BackgroundColorProperty, Color.FromArgb("#ACACAC"), Color.FromArgb("#ACACAC"));
-        rect.SetAppThemeColor(Shape.StrokeProperty, Color.FromArgb("#FFFFFF"), Color.FromArgb("#FFFFFF"));
-        ScheduleGrid.Add(rect, (int)DateTime.Now.DayOfWeek, 1);
-        ScheduleGrid.SetRowSpan(rect, 16);
+        _currentDay.SetAppThemeColor(BackgroundColorProperty, Color.FromArgb("#ACACAC"), Color.FromArgb("#ACACAC"));
+        _currentDay.SetAppThemeColor(Shape.StrokeProperty, Color.FromArgb("#FFFFFF"), Color.FromArgb("#FFFFFF"));
+        ScheduleGrid.Add(_currentDay, (int)DateTime.Now.DayOfWeek, 1);
+        ScheduleGrid.SetRowSpan(_currentDay, 16);
     }
 
     public void GenerateSchedule(IEnumerable<BlockModel> blocks)

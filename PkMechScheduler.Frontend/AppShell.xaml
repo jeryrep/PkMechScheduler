@@ -14,7 +14,7 @@
         <ShellContent Title="Rozkład zajęć" ContentTemplate="{DataTemplate pages:SchedulePage}" Route="SchedulePage"/>
     </FlyoutItem>
     <FlyoutItem Title="Nauczyciel">
-        <ShellContent Title="Rozkład zajęć nauczyciela" ContentTemplate="{DataTemplate pages:TeacherSchedulePage}"/>
+        <ShellContent Title="Rozkład zajęć nauczyciela" ContentTemplate="{DataTemplate pages:TeacherSchedulePage}" Route="TeacherSchedulePage"/>
     </FlyoutItem>
     <FlyoutItem Title="Sale">
         <ShellContent Title="Zajęcia w sali" ContentTemplate="{DataTemplate pages:RoomPage}"/>

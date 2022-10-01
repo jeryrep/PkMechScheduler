@@ -20,9 +20,9 @@ public partial class App
             var mauiWindow = handler.VirtualView;
             var nativeWindow = handler.PlatformView;
             nativeWindow.Activate();
-            IntPtr windowHandle = WinRT.Interop.WindowNative.GetWindowHandle(nativeWindow);
-            WindowId windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(windowHandle);
-            AppWindow appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+            var windowHandle = WinRT.Interop.WindowNative.GetWindowHandle(nativeWindow);
+            var windowId = Win32Interop.GetWindowIdFromWindow(windowHandle);
+            var appWindow = AppWindow.GetFromWindowId(windowId);
             appWindow.Resize(new SizeInt32(WindowWidth, WindowHeight));
 #endif
         });

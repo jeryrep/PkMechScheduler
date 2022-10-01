@@ -17,30 +17,45 @@ public class DatabaseService : IDatabaseService
         _scrapService = scrapService;
     }
 
-    public async Task<Dictionary<string, string>> GetGroups()
+    private async Task ScrapAgain()
     {
-        if (!_context.Groups.AnyAsync().Result)
-            await _serializerService.AddGroupsToDb(_scrapService.ScrapGroupsTable().Result);
+        await ClearTable(nameof(_context.Groups));
+        await ClearTable(nameof(_context.Rooms));
+        await ClearTable(nameof(_context.Teachers));
+        await _serializerService.AddGroupsToDb(_scrapService.ScrapGroupsTable().Result);
+    }
+
+    public async Task<Dictionary<string, string>> GetGroups(bool force = false)
+    {
+        if (await _context.Groups.AnyAsync() && !force)
+            return await _context.Groups.ToDictionaryAsync(x => x.Name, y => y.Link);
+        await ScrapAgain();
         return await _context.Groups.ToDictionaryAsync(x => x.Name, y => y.Link);
     }
 
-    public async Task<List<BlockModel>> GetBlocks(string courseKey)
+    public async Task<Dictionary<string, string>> GetTeachers(bool force = false)
     {
-        if (_context.Blocks.AnyAsync().Result && Preferences.Get("Course", string.Empty) == courseKey)
+        if (await _context.Teachers.AnyAsync() && !force)
+            return _context.Teachers.AsEnumerable().DistinctBy(x => x.Name).ToDictionary(x => x.Name, y => y.Link);
+        await ScrapAgain();
+        return _context.Teachers.AsEnumerable().DistinctBy(x => x.Name).ToDictionary(x => x.Name, y => y.Link);
+    }
+
+    public async Task<List<BlockModel>> GetBlocks(string courseKey, bool force = false)
+    {
+        if (_context.Blocks.AnyAsync().Result && Preferences.Get("Course", string.Empty) == courseKey && !force)
             return await _context.Blocks.ToListAsync();
-        await ClearBlocksTable();
+        await ClearTable(nameof(_context.Blocks));
         var links = await _context.Groups.Where(x => x.Name.Contains(courseKey)).Select(x => x.Link).ToListAsync();
         foreach (var link in links)
             await _serializerService.AddScheduleToDb( _scrapService.ScrapSchedule(link).Result);
-
-
         return await _context.Blocks.ToListAsync();
     }
 
-    private async Task ClearBlocksTable()
+    private async Task ClearTable(string table)
     {
-        await _context.Database.ExecuteSqlRawAsync("DELETE From Blocks;");
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM sqlite_sequence WHERE name='Blocks';");
+        await _context.Database.ExecuteSqlRawAsync($"DELETE From {table};");
+        await _context.Database.ExecuteSqlRawAsync($"DELETE FROM sqlite_sequence WHERE name='{table}';");
         _context.ChangeTracker.Clear();
         await _context.SaveChangesAsync();
     }
