@@ -16,6 +16,7 @@ public partial class ScheduleGridView
         _frames.ForEach(x => ScheduleGrid.Remove(x));
         _frames.Clear();
         ScheduleGrid.Remove(_timeLine);
+#if WINDOWS
         ScheduleGrid.Remove(_currentDay);
         if (DateTime.Now.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday) return;
         _currentDay = new Rectangle
@@ -27,55 +28,88 @@ public partial class ScheduleGridView
         _currentDay.SetAppThemeColor(Shape.StrokeProperty, Color.FromArgb("#FFFFFF"), Color.FromArgb("#FFFFFF"));
         ScheduleGrid.Add(_currentDay, (int)DateTime.Now.DayOfWeek, 1);
         ScheduleGrid.SetRowSpan(_currentDay, 16);
+#endif
     }
 
-    public void GenerateSchedule(IEnumerable<BlockModel> blocks)
+    public void GenerateSchedule(IEnumerable<BaseBlock> blocks)
     {
         PrepareScheduleGrid();
 
         foreach (var blockModel in blocks)
         {
+            
             var block = new Frame
             {
                 Background = Color.FromArgb("#6E6E6E"),
                 Padding = 5,
                 CornerRadius = 4,
-                Content = new Label
+            };
+            block.SetAppThemeColor(Microsoft.Maui.Controls.Frame.BorderColorProperty, Color.FromArgb("#C8C8C8"), Color.FromArgb("#404040"));
+            Label label;
+            if (blockModel is TeacherBlock { Description: { } } tBlock)
+                label = new Label
                 {
-                    FormattedText = new FormattedString
-                    {
-                        Spans =
-                        {
-                            new Span
-                            {
-                                Text = $"{blockModel.Name} "
-                            },
-                            new Span
-                            {
-                                Text = $"{blockModel.Group}\n",
-                                FontAttributes = FontAttributes.Italic
-                            },
-                            new Span
-                            {
-                                Text = blockModel.Place,
-                                FontAttributes = FontAttributes.Bold
-                            }
-                        }
-                    },
+                    Text = tBlock.Description,
                     TextColor = Color.FromArgb("#100F0F"),
                     HorizontalTextAlignment = TextAlignment.Center,
                     VerticalTextAlignment = TextAlignment.Center
-                }
-            };
-            block.SetAppThemeColor(Microsoft.Maui.Controls.Frame.BorderColorProperty, Color.FromArgb("#C8C8C8"), Color.FromArgb("#404040"));
+                };
+            else
+            {
+                var formattedString = blockModel switch
+                {
+                    TeacherBlock teacherBlock => new FormattedString
+                    {
+                        Spans =
+                        {
+                            new Span { Text = $"{teacherBlock.Courses}\n"},
+                            new Span { Text = $"{blockModel.Name} " },
+                            new Span { Text = $"{blockModel.Group}\n", FontAttributes = FontAttributes.Italic },
+                            new Span { Text = blockModel.Place, FontAttributes = FontAttributes.Bold }
+                        }
+                    },
+                    StudentBlock => new FormattedString
+                    {
+                        Spans =
+                        {
+                            new Span { Text = $"{blockModel.Name} " },
+                            new Span { Text = $"{blockModel.Group}\n", FontAttributes = FontAttributes.Italic },
+                            new Span { Text = blockModel.Place, FontAttributes = FontAttributes.Bold }
+                        }
+                    },
+                    _ => new FormattedString()
+                };
+                label = new Label
+                {
+                    FormattedText = formattedString,
+                    TextColor = Color.FromArgb("#100F0F"),
+                    HorizontalTextAlignment = TextAlignment.Center,
+                    VerticalTextAlignment = TextAlignment.Center
+                };
+            }
             var gesture = new TapGestureRecognizer();
-            gesture.Tapped += async (_, _) => {
-                await Application.Current?.MainPage?.DisplayAlert(blockModel.Name, $"Grupa: {blockModel.Group}\n" +
-                    $"Sala: {blockModel.Place}\n" +
-                    $"Tydzień: {blockModel.EvenWeek switch { true => "Parzysty", false => "Nieparzysty", _ => "Oba" }}\n" +
-                    $"Liczba godzin: {blockModel.Blocks}", "OK")!;
-            };
+            switch (blockModel)
+            {
+                case TeacherBlock { Description: null } teacherBlock:
+                    gesture.Tapped += async (_, _) => {
+                        await Application.Current?.MainPage?.DisplayAlert(blockModel.Name, $"Grupy: {teacherBlock.Courses}\n" +
+                            $"Sala: {blockModel.Place}\n" +
+                            $"Tydzień: {blockModel.EvenWeek switch { true => "Parzysty", false => "Nieparzysty", _ => "Oba" }}\n" +
+                            $"Liczba godzin: {blockModel.Blocks}", "OK")!;
+                    };
+                    break;
+                case StudentBlock:
+                    gesture.Tapped += async (_, _) => {
+                        await Application.Current?.MainPage?.DisplayAlert(blockModel.Name, $"Grupy: {blockModel.Group}\n" +
+                            $"Sala: {blockModel.Place}\n" +
+                            $"Tydzień: {blockModel.EvenWeek switch { true => "Parzysty", false => "Nieparzysty", _ => "Oba" }}\n" +
+                            $"Liczba godzin: {blockModel.Blocks}", "OK")!;
+                    };
+                    break;
+            }
             block.GestureRecognizers.Add(gesture);
+            block.Content = label;
+
             _frames.Add(block);
             ScheduleGrid.Add(block, (int)blockModel.DayOfWeek, blockModel.Number + 1);
             ScheduleGrid.SetRowSpan(block, blockModel.Blocks);

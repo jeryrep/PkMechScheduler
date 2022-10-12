@@ -10,7 +10,7 @@ namespace PkMechScheduler.Database.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Blocks",
+                name: "StudentBlocks",
                 columns: table => new
                 {
                     Id = table.Column<ulong>(type: "INTEGER", nullable: false)
@@ -49,7 +49,7 @@ namespace PkMechScheduler.Database.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Blocks");
+                name: "StudentBlocks");
 
             migrationBuilder.DropTable(
                 name: "Groups");

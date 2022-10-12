@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PkMechScheduler.Database;
 
@@ -10,9 +11,11 @@ using PkMechScheduler.Database;
 namespace PkMechScheduler.Database.Migrations
 {
     [DbContext(typeof(SchedulerContext))]
-    partial class SchedulerContextModelSnapshot : ModelSnapshot
+    [Migration("20221009162740_DifferentiateBlocks")]
+    partial class DifferentiateBlocks
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.0-rc.1.22426.7");
@@ -132,14 +135,8 @@ namespace PkMechScheduler.Database.Migrations
                     b.Property<byte>("Blocks")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Courses")
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("DayOfWeek")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("TEXT");
 
                     b.Property<TimeSpan>("End")
                         .HasColumnType("TEXT");

@@ -10,7 +10,7 @@ public partial class SchedulePage
 
     protected override async void OnNavigatedTo(NavigatedToEventArgs args)
     {
-        var fullSchedule = await _databaseService.GetBlocks(Preferences.Get("Course", string.Empty));
+        var fullSchedule = await _databaseService.GetBlocks(Preferences.Get(nameof(Preference.Course), string.Empty));
         LectureLayout.IsVisible = fullSchedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Lecture).ToString()));
         ExerciseLayout.IsVisible = fullSchedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Exercise).ToString()));
         LaboratoryLayout.IsVisible =
@@ -21,6 +21,7 @@ public partial class SchedulePage
         SeminarsLayout.IsVisible = fullSchedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Seminars).ToString()));
         WfLayout.IsVisible = fullSchedule.Any(x => x.Group is "K" or "M");
         EnglishLayout.IsVisible = fullSchedule.Any(x => x.Group == ((char)SubjectType.Exercise).ToString());
+        await GenerateSchedule();
     }
 
     protected override void OnNavigatedFrom(NavigatedFromEventArgs args)
@@ -39,13 +40,12 @@ public partial class SchedulePage
     {
         _databaseService = Application.Current?.Handler.MauiContext?.Services.GetService<IDatabaseService>();
         InitializeComponent();
-        GenerateSchedule();
     }
 
     private async Task GenerateSchedule() => ScheduleGridView.GenerateSchedule(
-        (await _databaseService.GetBlocks(Preferences.Get("Course", string.Empty))).Where(FiltersApply));
+        (await _databaseService.GetBlocks(Preferences.Get(nameof(Preference.Course), string.Empty))).Where(FiltersApply));
 
-    private bool FiltersApply(BlockModel model) =>
+    private bool FiltersApply(StudentBlock model) =>
         (model.EvenWeek == null || model.EvenWeek == WeekLabel.Text.StartsWith("P")) &&
         ((model.Group == Preferences.Get(((char)SubjectType.ComputersLaboratory).ToString(), string.Empty) &&
           ComputersLaboratoryCheckbox.IsChecked) ||
@@ -87,5 +87,5 @@ public partial class SchedulePage
     }
 
     private async void ForceUpdate(object sender, EventArgs e) => ScheduleGridView.GenerateSchedule(
-            (await _databaseService.GetBlocks(Preferences.Get("Course", string.Empty), true)).Where(FiltersApply));
+            (await _databaseService.GetBlocks(Preferences.Get(nameof(Preference.Course), string.Empty), true)).Where(FiltersApply));
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PkMechScheduler.Database;
 using PkMechScheduler.Database.Models;
+using PkMechScheduler.Frontend.Enums;
 using PkMechScheduler.Frontend.Interfaces;
 
 namespace PkMechScheduler.Frontend.Services;
@@ -41,15 +42,26 @@ public class DatabaseService : IDatabaseService
         return _context.Teachers.AsEnumerable().DistinctBy(x => x.Name).ToDictionary(x => x.Name, y => y.Link);
     }
 
-    public async Task<List<BlockModel>> GetBlocks(string courseKey, bool force = false)
+    public async Task<List<StudentBlock>> GetBlocks(string courseKey, bool force = false)
     {
-        if (_context.Blocks.AnyAsync().Result && Preferences.Get("Course", string.Empty) == courseKey && !force)
-            return await _context.Blocks.ToListAsync();
-        await ClearTable(nameof(_context.Blocks));
+        if (await _context.StudentBlocks.AnyAsync() && Preferences.Get(nameof(Preference.Course), string.Empty) == courseKey && !force)
+            return await _context.StudentBlocks.ToListAsync();
+        await ClearTable(nameof(_context.StudentBlocks));
         var links = await _context.Groups.Where(x => x.Name.Contains(courseKey)).Select(x => x.Link).ToListAsync();
         foreach (var link in links)
-            await _serializerService.AddScheduleToDb( _scrapService.ScrapSchedule(link).Result);
-        return await _context.Blocks.ToListAsync();
+            await _serializerService.AddScheduleToDb(_scrapService.ScrapSchedule(link).Result, Preference.Student);
+        return await _context.StudentBlocks.ToListAsync();
+    }
+
+    public async Task<List<TeacherBlock>> GetTeacherBlocks(string teacher, bool force = false)
+    {
+        if (await _context.TeacherBlocks.AnyAsync() && Preferences.Get(nameof(Preference.Teacher), string.Empty) == teacher && !force)
+            return await _context.TeacherBlocks.ToListAsync();
+        await ClearTable(nameof(_context.TeacherBlocks));
+        var links = await _context.Teachers.Where(x => x.Name.Contains(teacher)).Select(x => x.Link).ToListAsync();
+        foreach (var link in links)
+            await _serializerService.AddScheduleToDb(_scrapService.ScrapSchedule(link).Result, Preference.Teacher);
+        return await _context.TeacherBlocks.ToListAsync();
     }
 
     private async Task ClearTable(string table)

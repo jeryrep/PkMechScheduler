@@ -16,37 +16,61 @@ public partial class SerializerService : ISerializerService
     private readonly SchedulerContext _context;
     public SerializerService(SchedulerContext context) => _context = context;
 
-    public async Task AddScheduleToDb(IDocument document)
+    public async Task AddScheduleToDb(IDocument document, Preference mode)
     {
         var groupNumber = ClearTagRegex().Replace(document.QuerySelector("span.tytulnapis")?.InnerHtml!, string.Empty)
             .Last();
         var table = document.QuerySelector("table.tabela");
         var rows = table?.QuerySelectorAll("tr");
-        var list = new List<BlockModel>();
-        foreach (var row in rows!.Skip(1).Select((row, i) => (row, i))) HandleRow(row, groupNumber, list);
+        var list = new List<BaseBlock>();
+        foreach (var row in rows!.Skip(1).Select((row, i) => (row, i)))
+            HandleRow(row.row, row.i, groupNumber, list, mode);
 
         UnifyBothWeekSubjects(list);
 
-        await SaveUniqueBlocks(list);
+        await SaveUniqueBlocks(list, mode);
     }
 
-    private async Task SaveUniqueBlocks(IEnumerable<BlockModel> list)
+    private async Task SaveUniqueBlocks(IEnumerable<BaseBlock> list, Preference mode)
     {
-        foreach (var blockModel in list.Select(blockModel => new
-                     {
-                         blockModel,
-                         possibleDuplicate = _context.Blocks.ToListAsync()
-                             .Result.Find(x =>
-                                 x.DayOfWeek == blockModel.DayOfWeek && x.Name == blockModel.Name &&
-                                 x.Group == blockModel.Group && x.Place == blockModel.Place &&
-                                 x.EvenWeek == blockModel.EvenWeek)
-                     })
-                     .Where(t => t.possibleDuplicate == null)
-                     .Select(t => t?.blockModel)) await _context.Blocks.AddAsync(blockModel!);
+        switch (mode)
+        {
+            case Preference.Student:
+            {
+                foreach (var blockModel in list.Select(block => new
+                             {
+                                 blockModel = (StudentBlock)block,
+                                 possibleDuplicate = _context.StudentBlocks.ToListAsync()
+                                     .Result.Find(x =>
+                                         x.DayOfWeek == block.DayOfWeek && x.Name == block.Name &&
+                                         x.Group == block.Group && x.Place == block.Place &&
+                                         x.EvenWeek == block.EvenWeek)
+                             })
+                             .Where(t => t.possibleDuplicate == null)
+                             .Select(t => t?.blockModel)) await _context.StudentBlocks.AddAsync(blockModel!);
+                break;
+            }
+            case Preference.Teacher:
+            {
+                foreach (var blockModel in list.Select(block => new
+                             {
+                                 blockModel = (TeacherBlock)block,
+                                 possibleDuplicate = _context.TeacherBlocks.ToListAsync()
+                                     .Result.Find(x =>
+                                         x.DayOfWeek == block.DayOfWeek && x.Name == block.Name &&
+                                         x.Group == block.Group && x.Place == block.Place &&
+                                         x.EvenWeek == block.EvenWeek && x.Courses == ((TeacherBlock)block).Courses)
+                             })
+                             .Where(t => t.possibleDuplicate == null)
+                             .Select(t => t?.blockModel)) await _context.TeacherBlocks.AddAsync(blockModel!);
+                break;
+            }
+        }
+
         await _context.SaveChangesAsync();
     }
 
-    private static void UnifyBothWeekSubjects(List<BlockModel> list)
+    private static void UnifyBothWeekSubjects(List<BaseBlock> list)
     {
         for (var i = list.Count - 1; i >= 0; i--)
         {
@@ -62,24 +86,90 @@ public partial class SerializerService : ISerializerService
         }
     }
 
-    private static void HandleRow((IElement row, int i) row, char groupNumber, List<BlockModel> list)
+    private static void HandleRow(IParentNode row, int i, char groupNumber, List<BaseBlock> list, Preference mode)
     {
-        var timeSpan = row.row.QuerySelector("td.g")?.InnerHtml.Split("-");
-        foreach (var block in row.row.QuerySelectorAll("td.l").Select((cell, j) => (cell, j)))
-            HandleBlock(row, groupNumber, list, block, timeSpan);
+        var timeSpan = row.QuerySelector("td.g")?.InnerHtml.Split("-");
+        foreach (var block in row.QuerySelectorAll("td.l").Select((cell, j) => (cell, j)))
+        {
+            if (block.cell.InnerHtml.Contains("&nbsp;"))
+                continue;
+            switch (mode)
+            {
+                case Preference.Student:
+                    HandleBlock(i, groupNumber, list, block.cell, block.j, timeSpan);
+                    break;
+                case Preference.Teacher:
+                    HandleTeacherBlock(i, groupNumber, list, block.cell, block.j, timeSpan);
+                    break;
+            }
+        }
     }
 
-    private static void HandleBlock((IElement row, int i) row, char groupNumber, List<BlockModel> list,
-        (IElement cell, int j) block, string[] timeSpan)
+    private static void HandleTeacherBlock(int i, char groupNumber, List<BaseBlock> list, IElement blockCell, int j, string[] timeSpan)
     {
-        if (block.cell.InnerHtml.Contains("&nbsp;"))
-            return;
-        foreach (var subject in block.cell.InnerHtml.Split("<br>"))
+        foreach (var subject in blockCell.InnerHtml.Split("<br>"))
+        {
+            var textBlocks = ClearTagRegex().Replace(subject, string.Empty).Split(" ");
+            if (!CourseRegex().IsMatch(textBlocks.FirstOrDefault()!))
+            {
+                var simpleBlockModel = new TeacherBlock()
+                {
+                    Number = (byte)i,
+                    Start = TimeSpan.Parse(timeSpan!.FirstOrDefault()!),
+                    End = TimeSpan.Parse(timeSpan!.LastOrDefault()!),
+                    DayOfWeek = (DayOfWeek)j + 1,
+                    Blocks = 1,
+                    Description = string.Join(" ", textBlocks)
+                };
+                var duplicate = list.Find(x =>
+                    x.DayOfWeek == simpleBlockModel.DayOfWeek &&
+                    ((TeacherBlock)x).Description == simpleBlockModel.Description);
+                if (duplicate != null) duplicate.Blocks++;
+                else list.Add(simpleBlockModel);
+                continue;
+            }
+            var name = textBlocks[1];
+            var group = textBlocks[^2];
+            switch (name)
+            {
+                case "J":
+                    name = "J angielski";
+                    group = "Ć";
+                    break;
+                case "Met":
+                    name = "Met dośw";
+                    break;
+            }
+
+            var blockModel = new TeacherBlock
+            {
+                Number = (byte)i,
+                Start = TimeSpan.Parse(timeSpan!.FirstOrDefault()!),
+                End = TimeSpan.Parse(timeSpan!.LastOrDefault()!),
+                DayOfWeek = (DayOfWeek)j + 1,
+                Blocks = 1,
+                Name = name,
+                Group = group,
+                EvenWeek = textBlocks.LastOrDefault()?.Last() == 'p',
+                Courses = ParseStringWithDash(textBlocks.FirstOrDefault()?.Split(",")),
+                Place = ParseStringWithDash(textBlocks.LastOrDefault())
+            };
+            var possibleDuplicate = list.Find(x =>
+                x.DayOfWeek == blockModel.DayOfWeek && x.Name == blockModel.Name && x.Group == blockModel.Group && x.Place == blockModel.Place &&
+                x.EvenWeek == blockModel.EvenWeek && ((TeacherBlock)x).Courses!.Equals(blockModel.Courses, StringComparison.OrdinalIgnoreCase));
+
+            if (possibleDuplicate != null) possibleDuplicate.Blocks++;
+            else list.Add(blockModel);
+        }
+    }
+
+    private static void HandleBlock(int i, char groupNumber, List<BaseBlock> list, IElement cell, int j, string[] timeSpan)
+    {
+        foreach (var subject in cell.InnerHtml.Split("<br>"))
         {
             var textBlocks = ClearTagRegex().Replace(subject, string.Empty).Split(" ");
 
-            var index = textBlocks.FirstOrDefault()!.LastIndexOf("-", StringComparison.Ordinal);
-            var name = index >= 0 ? textBlocks.FirstOrDefault()?[..index] : textBlocks.FirstOrDefault();
+            var name = ParseStringWithDash(textBlocks.FirstOrDefault());
             var group = string.Empty;
             bool? evenWeek = null;
             var initials = string.Empty;
@@ -102,11 +192,9 @@ public partial class SerializerService : ISerializerService
                     {
                         if (textBlock is "-P" or "P-" && group != string.Empty)
                             initials = textBlock;
-                        else if (PeGenderRegex().IsMatch(textBlock) ||
-                                 GroupRegex().IsMatch(textBlock))
+                        else if (PeGenderRegex().IsMatch(textBlock) || GroupRegex().IsMatch(textBlock))
                         {
-                            var groupIndex = textBlock.LastIndexOf("-", StringComparison.Ordinal);
-                            group = groupIndex >= 0 ? textBlock[..groupIndex] : textBlock;
+                            group = ParseStringWithDash(textBlock);
                             switch (group[0])
                             {
                                 case (char)SubjectType.Lecture:
@@ -130,33 +218,42 @@ public partial class SerializerService : ISerializerService
                 }
             }
 
-            var placeIndex = textBlocks.LastOrDefault()!.LastIndexOf("-", StringComparison.Ordinal);
-            var place = placeIndex >= 0
-                ? textBlocks.LastOrDefault()?[..placeIndex]
-                : textBlocks.LastOrDefault();
-
-            var blockModel = new BlockModel
+            var blockModel = new StudentBlock
             {
-                Number = (byte)row.i,
+                Number = (byte)i,
                 Start = TimeSpan.Parse(timeSpan!.FirstOrDefault()!),
                 End = TimeSpan.Parse(timeSpan!.LastOrDefault()!),
-                DayOfWeek = (DayOfWeek)block.j + 1,
+                DayOfWeek = (DayOfWeek)j + 1,
                 Blocks = 1,
                 Name = name,
                 Group = group,
                 EvenWeek = evenWeek,
                 Initials = initials,
-                Place = place
-            };
+                Place = ParseStringWithDash(textBlocks.LastOrDefault())
+        };
             var possibleDuplicate = list.Find(x =>
-                x.DayOfWeek == blockModel.DayOfWeek && x.Name == name && x.Group == group && x.Place == place &&
-                x.EvenWeek == evenWeek && x.Initials!.Equals(initials, StringComparison.OrdinalIgnoreCase));
+                x.DayOfWeek == blockModel.DayOfWeek && x.Name == blockModel.Name && x.Group == blockModel.Group && x.Place == blockModel.Place &&
+                x.EvenWeek == blockModel.EvenWeek && ((StudentBlock)x).Initials!.Equals(blockModel.Initials, StringComparison.OrdinalIgnoreCase));
 
             if (possibleDuplicate != null)
                 possibleDuplicate.Blocks++;
             else
                 list.Add(blockModel);
         }
+    }
+
+    private static string ParseStringWithDash(string s)
+    {
+        var index = s.LastIndexOf("-", StringComparison.Ordinal);
+        return index >= 0 ? s[..index] : s;
+    }
+
+    private static string ParseStringWithDash(IEnumerable<string> strings)
+    {
+        var sb = new StringBuilder();
+        foreach (var s in strings) 
+            sb.Append($"{ParseStringWithDash(s)},");
+        return sb.ToString()[..^1];
     }
 
     public async Task AddGroupsToDb(IDocument document)
@@ -179,8 +276,7 @@ public partial class SerializerService : ISerializerService
             var pFrom = teacher.IndexOf("/", StringComparison.Ordinal);
             var pTo = teacher[(pFrom + 1)..].IndexOf("\"", StringComparison.Ordinal);
             var innerTexts = ClearTagRegex().Replace(teacher, string.Empty).Split(" ");
-            var index = innerTexts.FirstOrDefault()!.LastIndexOf("-", StringComparison.Ordinal);
-            var name = index >= 0 ? innerTexts.FirstOrDefault()?[..index] : innerTexts.FirstOrDefault();
+            var name = ParseStringWithDash(innerTexts.FirstOrDefault());
             await _context.Teachers.AddAsync(new Teacher
             {
                 Name = name,
@@ -195,18 +291,16 @@ public partial class SerializerService : ISerializerService
             var innerText = ClearTagRegex().Replace(room, string.Empty);
             var innerTexts = innerText.Split(" ").ToList();
             if ((innerTexts.Count == 1 && (innerTexts.FirstOrDefault()!.LastOrDefault() is not 'p' and not 'n' ||
-                                            innerTexts.FirstOrDefault()!.Contains("--------"))) ||
-                (innerTexts.Count == 2 && OrganizationalUnitRegex().IsMatch(innerTexts.LastOrDefault()!) && 
+                                           innerTexts.FirstOrDefault()!.Contains("--------"))) ||
+                (innerTexts.Count == 2 && OrganizationalUnitRegex().IsMatch(innerTexts.LastOrDefault()!) &&
                  !OrganizationalUnitRegex().IsMatch(innerTexts.FirstOrDefault()!))) continue;
             var pFrom = room.IndexOf("/", StringComparison.Ordinal);
             var pTo = room[(pFrom + 1)..].IndexOf("\"", StringComparison.Ordinal);
-
-            var index = innerTexts.FirstOrDefault()!.LastIndexOf("-", StringComparison.Ordinal);
-            var name = index >= 0 ? innerTexts.FirstOrDefault()?[..index] : innerTexts.FirstOrDefault();
+            var name = ParseStringWithDash(innerTexts.FirstOrDefault());
             var organizationalUnit = "WM";
-            if (innerTexts.Count == 1) 
+            if (innerTexts.Count == 1)
                 organizationalUnit = name;
-            else if (OrganizationalUnitRegex().IsMatch(innerTexts[1])) 
+            else if (OrganizationalUnitRegex().IsMatch(innerTexts[1]))
                 organizationalUnit = innerTexts[1];
             var description = string.Empty;
             if (innerText.Contains("w tyg."))
@@ -218,8 +312,10 @@ public partial class SerializerService : ISerializerService
                     if (OrganizationalUnitRegex().IsMatch(text)) continue;
                     stringBuilder.Append($"{text} ");
                 }
+
                 description = stringBuilder.ToString();
             }
+
             await _context.Rooms.AddAsync(new Room
             {
                 Name = name,
@@ -244,4 +340,7 @@ public partial class SerializerService : ISerializerService
 
     [GeneratedRegex("[WKLĆSP]0?[0-9]?-")]
     private static partial Regex GroupRegex();
+
+    [GeneratedRegex("^[1-9]{2}")]
+    private static partial Regex CourseRegex();
 }

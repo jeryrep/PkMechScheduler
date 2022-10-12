@@ -15,15 +15,15 @@ public partial class WelcomePage
         InitializeComponent();
         var groups = _databaseService?.GetGroups().Result;
         GroupsPicker.ItemsSource = groups!.Select(g => g.Key[..3]).Distinct().ToList();
-        GroupsPicker.SelectedItem = Preferences.ContainsKey("Course") ? Preferences.Get("Course", "11A") : "11A";
+        GroupsPicker.SelectedItem = Preferences.Get(nameof(Preference.Course), "11A");
         var teachers = _databaseService?.GetTeachers().Result;
         TeacherPicker.ItemsSource = teachers!.Select(g => g.Key).Distinct().ToList();
-        if (Preferences.ContainsKey("Teacher"))
-            TeacherPicker.SelectedItem = Preferences.Get("Teacher", string.Empty);
+        if (Preferences.ContainsKey(nameof(Preference.Teacher)))
+            TeacherPicker.SelectedItem = Preferences.Get(nameof(Preference.Teacher), string.Empty);
         else
             TeacherPicker.SelectedIndex = 0;
         LanguagePicker.SelectedIndex = 0;
-        switch (Preferences.Get("Mode", string.Empty))
+        switch (Preferences.Get(nameof(Preference.Mode), "Student"))
         {
             case "Teacher":
                 StudentButton.IsChecked = false;
@@ -57,21 +57,21 @@ public partial class WelcomePage
 
     private void OnStudentChecked(object sender, CheckedChangedEventArgs e)
     {
-        Preferences.Set("Mode", "Student");
+        Preferences.Set(nameof(Preference.Mode), "Student");
         TeacherConfig.IsVisible = false;
         StudentConfig.IsVisible = true;
     }
 
     private void OnTeacherChecked(object sender, CheckedChangedEventArgs e)
     {
-        Preferences.Set("Mode", "Teacher");
+        Preferences.Set(nameof(Preference.Mode), "Teacher");
         StudentConfig.IsVisible = false;
         TeacherConfig.IsVisible = true;
     }
 
     private void OnDeansOfficeChecked(object sender, CheckedChangedEventArgs e)
     {
-        Preferences.Set("Mode", "DeansOffice");
+        Preferences.Set(nameof(Preference.Mode), "DeansOffice");
         StudentConfig.IsVisible = false;
         TeacherConfig.IsVisible = false;
     }
@@ -80,7 +80,7 @@ public partial class WelcomePage
     {
         var picker = sender as Picker;
         var allInOne = await _databaseService.GetBlocks(picker?.SelectedItem.ToString());
-        Preferences.Set("Course", picker?.SelectedItem.ToString());
+        Preferences.Set(nameof(Preference.Course), picker?.SelectedItem.ToString());
         _views.ForEach(x => GroupsSelect.Remove(x));
         _views.Clear();
         AddSubjectCheckboxList(SubjectType.Lecture, allInOne);
@@ -92,7 +92,7 @@ public partial class WelcomePage
         AddWfPicker(allInOne);
     }
 
-    private void AddWfPicker(IEnumerable<BlockModel> blocks)
+    private void AddWfPicker(IEnumerable<StudentBlock> blocks)
     {
         var filteredBlocks = blocks.Where(x => x.Name == "WF").ToList();
         if (filteredBlocks.Count == 0) return;
@@ -125,7 +125,7 @@ public partial class WelcomePage
         Preferences.Set("WF", picker!.SelectedIndex == 1 ? "M" : "K");
     }
 
-    private void AddSubjectCheckboxList(SubjectType type, IEnumerable<BlockModel> blocks)
+    private void AddSubjectCheckboxList(SubjectType type, IEnumerable<StudentBlock> blocks)
     {
         var filteredBlocks = blocks.Where(x => x.Group!.StartsWith((char)type) && x.Group!.Length != 1).ToList();
         if (filteredBlocks.Count == 0) return;
@@ -164,7 +164,7 @@ public partial class WelcomePage
     private void UpdateTeacher(object sender, EventArgs e)
     {
         var picker = sender as Picker;
-        Preferences.Set("Teacher", picker?.SelectedItem.ToString());
+        Preferences.Set(nameof(Preference.Teacher), picker?.SelectedItem.ToString());
     }
 
     private void ForceUpdate(object sender, EventArgs e)
@@ -173,6 +173,6 @@ public partial class WelcomePage
         GroupsPicker.SelectedIndexChanged -= UpdateSubjects;
         GroupsPicker.ItemsSource = groups!.Select(g => g.Key[..3]).Distinct().ToList();
         GroupsPicker.SelectedIndexChanged += UpdateSubjects;
-        GroupsPicker.SelectedItem = Preferences.ContainsKey("Course") ? Preferences.Get("Course", "11A") : "11A";
+        GroupsPicker.SelectedItem = Preferences.Get(nameof(Preference.Course), "11A");
     }
 }

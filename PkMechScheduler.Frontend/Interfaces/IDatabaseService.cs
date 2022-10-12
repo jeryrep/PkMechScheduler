@@ -6,6 +6,6 @@ public interface IDatabaseService
 {
     public Task<Dictionary<string, string>> GetGroups(bool force = false);
     public Task<Dictionary<string, string>> GetTeachers(bool force = false);
-    public Task<List<BlockModel>> GetBlocks(string courseKey, bool force = false);
-
+    public Task<List<StudentBlock>> GetBlocks(string courseKey, bool force = false);
+    public Task<List<TeacherBlock>> GetTeacherBlocks(string teacher, bool force = false);
 }

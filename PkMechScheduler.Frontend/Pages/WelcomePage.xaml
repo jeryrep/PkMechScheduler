@@ -15,18 +15,18 @@
         </HorizontalStackLayout>
         <Label Text="Witamy!" VerticalOptions="Center" FontSize="40" HorizontalOptions="Center"/>
         <Label Text="Wybierz tryb aplikacji:" HorizontalOptions="Center"/>
-        <RadioButton Content="Student" HorizontalOptions="Center" GroupName="DefaultConfig" CheckedChanged="OnStudentChecked" x:Name="StudentButton"/>
-        <VerticalStackLayout x:Name="StudentConfig" HorizontalOptions="Center" Padding="0, 10, 0, 10" IsVisible="False">
+        <RadioButton Content="Student" HorizontalOptions="Center" GroupName="DefaultConfig" CheckedChanged="OnStudentChecked" x:Name="StudentButton" WidthRequest="100"/>
+        <StackLayout x:Name="StudentConfig" HorizontalOptions="Center" Padding="0, 10, 0, 10" IsVisible="False">
             <Picker x:Name="GroupsPicker" HorizontalOptions="Center" SelectedIndexChanged="UpdateSubjects" WidthRequest="100" VerticalOptions="Center"/>
             <VerticalStackLayout x:Name="GroupsSelect"/>
-        </VerticalStackLayout>
-        <RadioButton Content="Profesor" HorizontalOptions="Center" GroupName="DefaultConfig" x:Name="TeacherButton" CheckedChanged="OnTeacherChecked"/>
-        <VerticalStackLayout x:Name="TeacherConfig" IsVisible="False" HorizontalOptions="Center">
+        </StackLayout>
+        <RadioButton Content="Profesor" HorizontalOptions="Center" GroupName="DefaultConfig" x:Name="TeacherButton" CheckedChanged="OnTeacherChecked" WidthRequest="100"/>
+        <StackLayout x:Name="TeacherConfig" IsVisible="False" HorizontalOptions="Center">
             <Picker x:Name="TeacherPicker" HorizontalOptions="Center" SelectedIndexChanged="UpdateTeacher" WidthRequest="200"/>
-        </VerticalStackLayout>
-        <RadioButton Content="Dziekanat" HorizontalOptions="Center" GroupName="DefaultConfig" x:Name="DeansOfficeButton" CheckedChanged="OnDeansOfficeChecked"/>
-        <Button Text="Zapisz" Clicked="SavePreferences" HorizontalOptions="Center" WidthRequest="100"/>
-        <Label Text="Niepoprawne dane?" HorizontalOptions="Center"/>
+        </StackLayout>
+        <RadioButton Content="Dziekanat" HorizontalOptions="Center" GroupName="DefaultConfig" x:Name="DeansOfficeButton" CheckedChanged="OnDeansOfficeChecked" WidthRequest="100"/>
+        <Button Text="Zapisz" Clicked="SavePreferences" HorizontalOptions="Center"/>
+        <Label Text="Niepoprawne dane?" HorizontalOptions="Center" Margin="0, 50, 0, 0"/>
         <Button HorizontalOptions="Center" Clicked="ForceUpdate" Text="Aktualizuj"/>
     </VerticalStackLayout>
 </ContentPage>

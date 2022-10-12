@@ -97,17 +97,17 @@ public partial class ConfiguratorPage
                     await DisplayAlert(blockModel.Name, $"Grupa: {blockModel.Group}\n" +
                                                         $"Sala: {blockModel.Place}\n" +
                                                         $"Tydzień: {blockModel.EvenWeek switch { true => "Parzysty", false => "Nieparzysty", _ => "Brak informacji" }}\n" +
-                                                        $"Liczba godzin: {blockModel.Blocks}",
+                                                        $"Liczba godzin: {blockModel.StudentBlocks}",
                         "OK");
                 };
                 block.GestureRecognizers.Add(gesture);
                 _frames.Add(block);
                 ScheduleGrid.Add(block, (byte)daySchedule.Key + 2, blockModel.Number + 1);
-                ScheduleGrid.SetRowSpan(block, blockModel.Blocks);
+                ScheduleGrid.SetRowSpan(block, blockModel.StudentBlocks);
             }*/
     }
 
-    private static bool FiltersApply(BlockModel model, StudentFilterView filter)
+    private static bool FiltersApply(StudentBlock model, StudentFilterView filter)
     {
         return (model.EvenWeek == filter.EvenWeek || model.EvenWeek == null) && (Regex.IsMatch(model.Group, $"^L0{filter.LaboratoryGroup}") ||
                                                    Regex.IsMatch(model.Group, "^[ĆWS]") ||

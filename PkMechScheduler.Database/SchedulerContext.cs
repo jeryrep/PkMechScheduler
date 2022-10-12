@@ -8,7 +8,8 @@ public sealed class SchedulerContext : DbContext
     public DbSet<Group> Groups { get; set; }
     public DbSet<Teacher> Teachers { get; set; }
     public DbSet<Room> Rooms { get; set; }
-    public DbSet<BlockModel> Blocks { get; set; }
+    public DbSet<StudentBlock> StudentBlocks { get; set; }
+    public DbSet<TeacherBlock> TeacherBlocks { get; set; }
     public string DbPath { get; }
 
     public SchedulerContext(){}
@@ -17,6 +18,8 @@ public sealed class SchedulerContext : DbContext
         const Environment.SpecialFolder folder = Environment.SpecialFolder.LocalApplicationData;
         var path = Environment.GetFolderPath(folder);
         DbPath = Path.Join(path, "scheduler.db");
+        //uncomment following line to restart db for example after migration
+        //File.Delete(DbPath);
         Database.EnsureCreated();
     }
 

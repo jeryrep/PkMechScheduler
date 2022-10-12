@@ -6,7 +6,7 @@
              x:Class="PkMechScheduler.Frontend.Pages.SchedulePage">
     <VerticalStackLayout HorizontalOptions="Center">
         <HorizontalStackLayout HorizontalOptions="Center">
-            <ImageButton x:Name="LeftBtn" Source="arrow_left_thick.png" Clicked="LeftBtnClicked" />
+            <ImageButton Source="arrow_left_thick.png" Clicked="LeftBtnClicked" />
             <VerticalStackLayout>
                 <Label x:Name="WeekLabel" Text="Parzysty" FontSize="40" HorizontalTextAlignment="Center" />
                 <HorizontalStackLayout HorizontalOptions="Center">
@@ -45,7 +45,7 @@
                     </VerticalStackLayout>
                 </HorizontalStackLayout>
             </VerticalStackLayout>
-            <ImageButton x:Name="RightBtn" Source="arrow_right_thick.png" Clicked="RightBtnClicked" />
+            <ImageButton Source="arrow_right_thick.png" Clicked="RightBtnClicked" />
         </HorizontalStackLayout>
         <views:ScheduleGridView x:Name="ScheduleGridView" />
         <Button Text="Aktualizuj" Clicked="ForceUpdate" WidthRequest="100" />
