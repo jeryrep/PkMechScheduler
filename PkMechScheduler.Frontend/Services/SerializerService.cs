@@ -99,68 +99,69 @@ public partial class SerializerService : ISerializerService
                     HandleBlock(i, groupNumber, list, block.cell, block.j, timeSpan);
                     break;
                 case Preference.Teacher:
-                    HandleTeacherBlock(i, groupNumber, list, block.cell, block.j, timeSpan);
+                    HandleTeacherBlock(i, list, block.cell, block.j, timeSpan);
                     break;
             }
         }
     }
 
-    private static void HandleTeacherBlock(int i, char groupNumber, List<BaseBlock> list, IElement blockCell, int j, string[] timeSpan)
+    private static void HandleTeacherBlock(int i, List<BaseBlock> list, IElement blockCell, int j, string[] timeSpan)
     {
-        foreach (var subject in blockCell.InnerHtml.Split("<br>"))
+        var textBlocks = ClearTagRegex().Replace(blockCell.InnerHtml, string.Empty).Split(" ");
+        if (!CourseRegex().IsMatch(textBlocks.FirstOrDefault()!))
         {
-            var textBlocks = ClearTagRegex().Replace(subject, string.Empty).Split(" ");
-            if (!CourseRegex().IsMatch(textBlocks.FirstOrDefault()!))
-            {
-                var simpleBlockModel = new TeacherBlock()
-                {
-                    Number = (byte)i,
-                    Start = TimeSpan.Parse(timeSpan!.FirstOrDefault()!),
-                    End = TimeSpan.Parse(timeSpan!.LastOrDefault()!),
-                    DayOfWeek = (DayOfWeek)j + 1,
-                    Blocks = 1,
-                    Description = string.Join(" ", textBlocks)
-                };
-                var duplicate = list.Find(x =>
-                    x.DayOfWeek == simpleBlockModel.DayOfWeek &&
-                    ((TeacherBlock)x).Description == simpleBlockModel.Description);
-                if (duplicate != null) duplicate.Blocks++;
-                else list.Add(simpleBlockModel);
-                continue;
-            }
-            var name = textBlocks[1];
-            var group = textBlocks[^2];
-            switch (name)
-            {
-                case "J":
-                    name = "J angielski";
-                    group = "Ć";
-                    break;
-                case "Met":
-                    name = "Met dośw";
-                    break;
-            }
-
-            var blockModel = new TeacherBlock
+            var simpleBlockModel = new TeacherBlock
             {
                 Number = (byte)i,
                 Start = TimeSpan.Parse(timeSpan!.FirstOrDefault()!),
                 End = TimeSpan.Parse(timeSpan!.LastOrDefault()!),
                 DayOfWeek = (DayOfWeek)j + 1,
                 Blocks = 1,
-                Name = name,
-                Group = group,
-                EvenWeek = textBlocks.LastOrDefault()?.Last() == 'p',
-                Courses = ParseStringWithDash(textBlocks.FirstOrDefault()?.Split(",")),
-                Place = ParseStringWithDash(textBlocks.LastOrDefault())
+                Description = string.Join(" ", textBlocks)
             };
-            var possibleDuplicate = list.Find(x =>
-                x.DayOfWeek == blockModel.DayOfWeek && x.Name == blockModel.Name && x.Group == blockModel.Group && x.Place == blockModel.Place &&
-                x.EvenWeek == blockModel.EvenWeek && ((TeacherBlock)x).Courses!.Equals(blockModel.Courses, StringComparison.OrdinalIgnoreCase));
-
-            if (possibleDuplicate != null) possibleDuplicate.Blocks++;
-            else list.Add(blockModel);
+            var duplicate = list.Find(x =>
+                x.DayOfWeek == simpleBlockModel.DayOfWeek &&
+                ((TeacherBlock)x).Description == simpleBlockModel.Description);
+            if (duplicate != null) duplicate.Blocks++;
+            else list.Add(simpleBlockModel);
+            return;
         }
+
+        var name = textBlocks[1];
+        var group = textBlocks[^2];
+        switch (name)
+        {
+            case "J":
+                name = "J angielski";
+                group = "Ć";
+                break;
+            case "Met":
+                name = "Met dośw";
+                break;
+        }
+
+        var blockModel = new TeacherBlock
+        {
+            Number = (byte)i,
+            Start = TimeSpan.Parse(timeSpan!.FirstOrDefault()!),
+            End = TimeSpan.Parse(timeSpan!.LastOrDefault()!),
+            DayOfWeek = (DayOfWeek)j + 1,
+            Blocks = 1,
+            Name = name,
+            Group = group,
+            EvenWeek = textBlocks.LastOrDefault()?.Last() == 'p',
+            Courses = ParseStringWithDash(textBlocks.FirstOrDefault()?.Split(",")),
+            Place = ParseStringWithDash(textBlocks.LastOrDefault())
+        };
+        var possibleDuplicate = list.Find(x =>
+            x.DayOfWeek == blockModel.DayOfWeek && x.Name == blockModel.Name && x.Group == blockModel.Group &&
+            x.Place == blockModel.Place &&
+            x.EvenWeek == blockModel.EvenWeek &&
+            ((TeacherBlock)x).Courses!.Equals(blockModel.Courses, StringComparison.OrdinalIgnoreCase) &&
+            x.Number == blockModel.Number - x.Blocks);
+
+        if (possibleDuplicate != null) possibleDuplicate.Blocks++;
+        else list.Add(blockModel);
     }
 
     private static void HandleBlock(int i, char groupNumber, List<BaseBlock> list, IElement cell, int j, string[] timeSpan)
@@ -230,10 +231,12 @@ public partial class SerializerService : ISerializerService
                 EvenWeek = evenWeek,
                 Initials = initials,
                 Place = ParseStringWithDash(textBlocks.LastOrDefault())
-        };
+            };
             var possibleDuplicate = list.Find(x =>
-                x.DayOfWeek == blockModel.DayOfWeek && x.Name == blockModel.Name && x.Group == blockModel.Group && x.Place == blockModel.Place &&
-                x.EvenWeek == blockModel.EvenWeek && ((StudentBlock)x).Initials!.Equals(blockModel.Initials, StringComparison.OrdinalIgnoreCase));
+                x.DayOfWeek == blockModel.DayOfWeek && x.Name == blockModel.Name && x.Group == blockModel.Group &&
+                x.Place == blockModel.Place &&
+                x.EvenWeek == blockModel.EvenWeek &&
+                ((StudentBlock)x).Initials!.Equals(blockModel.Initials, StringComparison.OrdinalIgnoreCase));
 
             if (possibleDuplicate != null)
                 possibleDuplicate.Blocks++;
@@ -251,7 +254,7 @@ public partial class SerializerService : ISerializerService
     private static string ParseStringWithDash(IEnumerable<string> strings)
     {
         var sb = new StringBuilder();
-        foreach (var s in strings) 
+        foreach (var s in strings)
             sb.Append($"{ParseStringWithDash(s)},");
         return sb.ToString()[..^1];
     }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Maui.Controls.Compatibility;
 using PkMechScheduler.Database;
 using PkMechScheduler.Database.Models;
 using PkMechScheduler.Frontend.Enums;
@@ -62,6 +63,14 @@ public class DatabaseService : IDatabaseService
         foreach (var link in links)
             await _serializerService.AddScheduleToDb(_scrapService.ScrapSchedule(link).Result, Preference.Teacher);
         return await _context.TeacherBlocks.ToListAsync();
+    }
+
+    public async Task SaveTeacherBlocksToDb(string teacher)
+    {
+        await ClearTable(nameof(_context.TeacherBlocks));
+        var links = await _context.Teachers.Where(x => x.Name.Contains(teacher)).Select(x => x.Link).ToListAsync();
+        foreach (var link in links)
+            await _serializerService.AddScheduleToDb(_scrapService.ScrapSchedule(link).Result, Preference.Teacher);
     }
 
     private async Task ClearTable(string table)

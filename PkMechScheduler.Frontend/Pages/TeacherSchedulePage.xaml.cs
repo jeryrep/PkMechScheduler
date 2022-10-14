@@ -43,5 +43,5 @@ public partial class TeacherSchedulePage
     }
 
     private async void ForceUpdate(object sender, EventArgs e) => ScheduleGridView.GenerateSchedule(
-        (await _databaseService.GetTeacherBlocks(Preferences.Get(nameof(Preference.Course), string.Empty), true)).Where(FiltersApply));
+        (await _databaseService.GetTeacherBlocks(Preferences.Get(nameof(Preference.Teacher), string.Empty), true)).Where(FiltersApply));
 }

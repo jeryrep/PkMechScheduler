@@ -165,6 +165,7 @@ public partial class WelcomePage
     {
         var picker = sender as Picker;
         Preferences.Set(nameof(Preference.Teacher), picker?.SelectedItem.ToString());
+        _databaseService.SaveTeacherBlocksToDb(Preferences.Get(nameof(Preference.Teacher), string.Empty));
     }
 
     private void ForceUpdate(object sender, EventArgs e)
