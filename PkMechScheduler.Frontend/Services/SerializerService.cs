@@ -18,7 +18,7 @@ public partial class SerializerService : ISerializerService
 
     public async Task AddScheduleToDb(IDocument document, Preference mode)
     {
-        var groupNumber = ClearTagRegex().Replace(document.QuerySelector("span.tytulnapis")?.InnerHtml!, string.Empty)
+        var groupNumber = Regex.Replace(document.QuerySelector("span.tytulnapis")?.InnerHtml!, "<.*?>", string.Empty)
             .Last();
         var table = document.QuerySelector("table.tabela");
         var rows = table?.QuerySelectorAll("tr");
@@ -107,8 +107,8 @@ public partial class SerializerService : ISerializerService
 
     private static void HandleTeacherBlock(int i, List<BaseBlock> list, IElement blockCell, int j, string[] timeSpan)
     {
-        var textBlocks = ClearTagRegex().Replace(blockCell.InnerHtml, string.Empty).Split(" ");
-        if (!CourseRegex().IsMatch(textBlocks.FirstOrDefault()!))
+        var textBlocks = Regex.Replace(blockCell.InnerHtml, "<.*?>", string.Empty).Split(" ");
+        if (!Regex.IsMatch(textBlocks.FirstOrDefault()!, "^[1-9]{2}"))
         {
             var simpleBlockModel = new TeacherBlock
             {
@@ -168,7 +168,7 @@ public partial class SerializerService : ISerializerService
     {
         foreach (var subject in cell.InnerHtml.Split("<br>"))
         {
-            var textBlocks = ClearTagRegex().Replace(subject, string.Empty).Split(" ");
+            var textBlocks = Regex.Replace(subject, "<.*?>", string.Empty).Split(" ");
 
             var name = ParseStringWithDash(textBlocks.FirstOrDefault());
             var group = string.Empty;
@@ -193,7 +193,7 @@ public partial class SerializerService : ISerializerService
                     {
                         if (textBlock is "-P" or "P-" && group != string.Empty)
                             initials = textBlock;
-                        else if (PeGenderRegex().IsMatch(textBlock) || GroupRegex().IsMatch(textBlock))
+                        else if (Regex.IsMatch(textBlock, "^[(][MK][)]") || Regex.IsMatch(textBlock, "[WKLĆSP]0?[0-9]?-"))
                         {
                             group = ParseStringWithDash(textBlock);
                             switch (group[0])
@@ -268,7 +268,7 @@ public partial class SerializerService : ISerializerService
             var pTo = paragraph[(pFrom + 1)..].IndexOf("\"", StringComparison.Ordinal);
             await _context.Groups.AddAsync(new Group
             {
-                Name = ClearTagRegex().Replace(paragraph, string.Empty),
+                Name = Regex.Replace(paragraph, "<.*?>", string.Empty),
                 Link = paragraph.Substring(pFrom + 1, pTo)
             });
         }
@@ -278,7 +278,7 @@ public partial class SerializerService : ISerializerService
         {
             var pFrom = teacher.IndexOf("/", StringComparison.Ordinal);
             var pTo = teacher[(pFrom + 1)..].IndexOf("\"", StringComparison.Ordinal);
-            var innerTexts = ClearTagRegex().Replace(teacher, string.Empty).Split(" ");
+            var innerTexts = Regex.Replace(teacher, "<.*?>", string.Empty).Split(" ");
             var name = ParseStringWithDash(innerTexts.FirstOrDefault());
             await _context.Teachers.AddAsync(new Teacher
             {
@@ -291,19 +291,19 @@ public partial class SerializerService : ISerializerService
         var rooms = document.QuerySelector("div#sale")?.QuerySelectorAll("p");
         foreach (var room in rooms!.Select(x => x.InnerHtml).Skip(1))
         {
-            var innerText = ClearTagRegex().Replace(room, string.Empty);
+            var innerText = Regex.Replace(room, "<.*?>", string.Empty);
             var innerTexts = innerText.Split(" ").ToList();
             if ((innerTexts.Count == 1 && (innerTexts.FirstOrDefault()!.LastOrDefault() is not 'p' and not 'n' ||
                                            innerTexts.FirstOrDefault()!.Contains("--------"))) ||
-                (innerTexts.Count == 2 && OrganizationalUnitRegex().IsMatch(innerTexts.LastOrDefault()!) &&
-                 !OrganizationalUnitRegex().IsMatch(innerTexts.FirstOrDefault()!))) continue;
+                (innerTexts.Count == 2 && Regex.IsMatch(innerTexts.LastOrDefault()!, "^M-?[1-9]") &&
+                 !Regex.IsMatch(innerTexts.FirstOrDefault()!, "^M-?[1-9]"))) continue;
             var pFrom = room.IndexOf("/", StringComparison.Ordinal);
             var pTo = room[(pFrom + 1)..].IndexOf("\"", StringComparison.Ordinal);
             var name = ParseStringWithDash(innerTexts.FirstOrDefault());
             var organizationalUnit = "WM";
             if (innerTexts.Count == 1)
                 organizationalUnit = name;
-            else if (OrganizationalUnitRegex().IsMatch(innerTexts[1]))
+            else if (Regex.IsMatch(innerTexts[1], "^M-?[1-9]"))
                 organizationalUnit = innerTexts[1];
             var description = string.Empty;
             if (innerText.Contains("w tyg."))
@@ -312,7 +312,7 @@ public partial class SerializerService : ISerializerService
                 var stringBuilder = new StringBuilder();
                 foreach (var text in innerTexts.Skip(1))
                 {
-                    if (OrganizationalUnitRegex().IsMatch(text)) continue;
+                    if (Regex.IsMatch(text, "^M-?[1-9]")) continue;
                     stringBuilder.Append($"{text} ");
                 }
 
@@ -331,19 +331,4 @@ public partial class SerializerService : ISerializerService
 
         await _context.SaveChangesAsync();
     }
-
-    [GeneratedRegex("<.*?>")]
-    private static partial Regex ClearTagRegex();
-
-    [GeneratedRegex("^M-?[1-9]")]
-    private static partial Regex OrganizationalUnitRegex();
-
-    [GeneratedRegex("^[(][MK][)]")]
-    private static partial Regex PeGenderRegex();
-
-    [GeneratedRegex("[WKLĆSP]0?[0-9]?-")]
-    private static partial Regex GroupRegex();
-
-    [GeneratedRegex("^[1-9]{2}")]
-    private static partial Regex CourseRegex();
 }
