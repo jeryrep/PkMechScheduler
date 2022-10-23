@@ -3,23 +3,21 @@ using System.Text.RegularExpressions;
 using AngleSharp.Dom;
 using Microsoft.EntityFrameworkCore;
 using PkMechScheduler.Database;
+using PkMechScheduler.Database.Enums;
 using PkMechScheduler.Database.Models;
-using PkMechScheduler.Frontend.Enums;
-using PkMechScheduler.Frontend.Interfaces;
+using PkMechScheduler.Infrastructure.Interfaces;
 using Group = PkMechScheduler.Database.Models.Group;
-using IElement = AngleSharp.Dom.IElement;
 
-namespace PkMechScheduler.Frontend.Services;
+namespace PkMechScheduler.Infrastructure.Services;
 
-public partial class SerializerService : ISerializerService
+public class SerializerService : ISerializerService
 {
     private readonly SchedulerContext _context;
     public SerializerService(SchedulerContext context) => _context = context;
 
-    public async Task AddScheduleToDb(IDocument document, Preference mode)
+    public async Task ConvertDocumentToBlockList(IDocument document, Preference mode)
     {
-        var groupNumber = Regex.Replace(document.QuerySelector("span.tytulnapis")?.InnerHtml!, "<.*?>", string.Empty)
-            .Last();
+        var groupNumber = Regex.Replace(document.QuerySelector("span.tytulnapis")?.InnerHtml!, "<.*?>", string.Empty).Last();
         var table = document.QuerySelector("table.tabela");
         var rows = table?.QuerySelectorAll("tr");
         var list = new List<BaseBlock>();
@@ -31,12 +29,16 @@ public partial class SerializerService : ISerializerService
         await SaveUniqueBlocks(list, mode);
     }
 
+    public async Task ConvertDocumentsToBlockList(IEnumerable<IDocument> documents, Preference mode)
+    {
+        foreach (var document in documents) await ConvertDocumentToBlockList(document, mode);
+    }
+
     private async Task SaveUniqueBlocks(IEnumerable<BaseBlock> list, Preference mode)
     {
         switch (mode)
         {
             case Preference.Student:
-            {
                 foreach (var blockModel in list.Select(block => new
                              {
                                  blockModel = (StudentBlock)block,
@@ -49,9 +51,7 @@ public partial class SerializerService : ISerializerService
                              .Where(t => t.possibleDuplicate == null)
                              .Select(t => t?.blockModel)) await _context.StudentBlocks.AddAsync(blockModel!);
                 break;
-            }
             case Preference.Teacher:
-            {
                 foreach (var blockModel in list.Select(block => new
                              {
                                  blockModel = (TeacherBlock)block,
@@ -62,9 +62,8 @@ public partial class SerializerService : ISerializerService
                                          x.EvenWeek == block.EvenWeek && x.Courses == ((TeacherBlock)block).Courses)
                              })
                              .Where(t => t.possibleDuplicate == null)
-                             .Select(t => t?.blockModel)) await _context.TeacherBlocks.AddAsync(blockModel!);
+                             .Select(t => t.blockModel)) await _context.TeacherBlocks.AddAsync(blockModel);
                 break;
-            }
         }
 
         await _context.SaveChangesAsync();
@@ -96,10 +95,10 @@ public partial class SerializerService : ISerializerService
             switch (mode)
             {
                 case Preference.Student:
-                    HandleBlock(i, groupNumber, list, block.cell, block.j, timeSpan);
+                    HandleBlock(i, groupNumber, list, block.cell, block.j, timeSpan!);
                     break;
                 case Preference.Teacher:
-                    HandleTeacherBlock(i, list, block.cell, block.j, timeSpan);
+                    HandleTeacherBlock(i, list, block.cell, block.j, timeSpan!);
                     break;
             }
         }
@@ -113,8 +112,8 @@ public partial class SerializerService : ISerializerService
             var simpleBlockModel = new TeacherBlock
             {
                 Number = (byte)i,
-                Start = TimeSpan.Parse(timeSpan!.FirstOrDefault()!),
-                End = TimeSpan.Parse(timeSpan!.LastOrDefault()!),
+                Start = TimeSpan.Parse(timeSpan.FirstOrDefault()!),
+                End = TimeSpan.Parse(timeSpan.LastOrDefault()!),
                 DayOfWeek = (DayOfWeek)j + 1,
                 Blocks = 1,
                 Description = string.Join(" ", textBlocks)
@@ -143,15 +142,15 @@ public partial class SerializerService : ISerializerService
         var blockModel = new TeacherBlock
         {
             Number = (byte)i,
-            Start = TimeSpan.Parse(timeSpan!.FirstOrDefault()!),
-            End = TimeSpan.Parse(timeSpan!.LastOrDefault()!),
+            Start = TimeSpan.Parse(timeSpan.FirstOrDefault()!),
+            End = TimeSpan.Parse(timeSpan.LastOrDefault()!),
             DayOfWeek = (DayOfWeek)j + 1,
             Blocks = 1,
             Name = name,
             Group = group,
             EvenWeek = textBlocks.LastOrDefault()?.Last() == 'p',
-            Courses = ParseStringWithDash(textBlocks.FirstOrDefault()?.Split(",")),
-            Place = ParseStringWithDash(textBlocks.LastOrDefault())
+            Courses = ParseStringWithDash(textBlocks.FirstOrDefault()?.Split(",")!),
+            Place = ParseStringWithDash(textBlocks.LastOrDefault()!)
         };
         var possibleDuplicate = list.Find(x =>
             x.DayOfWeek == blockModel.DayOfWeek && x.Name == blockModel.Name && x.Group == blockModel.Group &&
@@ -170,7 +169,7 @@ public partial class SerializerService : ISerializerService
         {
             var textBlocks = Regex.Replace(subject, "<.*?>", string.Empty).Split(" ");
 
-            var name = ParseStringWithDash(textBlocks.FirstOrDefault());
+            var name = ParseStringWithDash(textBlocks.FirstOrDefault()!);
             var group = string.Empty;
             bool? evenWeek = null;
             var initials = string.Empty;
@@ -222,15 +221,15 @@ public partial class SerializerService : ISerializerService
             var blockModel = new StudentBlock
             {
                 Number = (byte)i,
-                Start = TimeSpan.Parse(timeSpan!.FirstOrDefault()!),
-                End = TimeSpan.Parse(timeSpan!.LastOrDefault()!),
+                Start = TimeSpan.Parse(timeSpan.FirstOrDefault()!),
+                End = TimeSpan.Parse(timeSpan.LastOrDefault()!),
                 DayOfWeek = (DayOfWeek)j + 1,
                 Blocks = 1,
                 Name = name,
                 Group = group,
                 EvenWeek = evenWeek,
                 Initials = initials,
-                Place = ParseStringWithDash(textBlocks.LastOrDefault())
+                Place = ParseStringWithDash(textBlocks.LastOrDefault()!)
             };
             var possibleDuplicate = list.Find(x =>
                 x.DayOfWeek == blockModel.DayOfWeek && x.Name == blockModel.Name && x.Group == blockModel.Group &&
@@ -279,7 +278,7 @@ public partial class SerializerService : ISerializerService
             var pFrom = teacher.IndexOf("/", StringComparison.Ordinal);
             var pTo = teacher[(pFrom + 1)..].IndexOf("\"", StringComparison.Ordinal);
             var innerTexts = Regex.Replace(teacher, "<.*?>", string.Empty).Split(" ");
-            var name = ParseStringWithDash(innerTexts.FirstOrDefault());
+            var name = ParseStringWithDash(innerTexts.FirstOrDefault()!);
             await _context.Teachers.AddAsync(new Teacher
             {
                 Name = name,
@@ -299,7 +298,7 @@ public partial class SerializerService : ISerializerService
                  !Regex.IsMatch(innerTexts.FirstOrDefault()!, "^M-?[1-9]"))) continue;
             var pFrom = room.IndexOf("/", StringComparison.Ordinal);
             var pTo = room[(pFrom + 1)..].IndexOf("\"", StringComparison.Ordinal);
-            var name = ParseStringWithDash(innerTexts.FirstOrDefault());
+            var name = ParseStringWithDash(innerTexts.FirstOrDefault()!);
             var organizationalUnit = "WM";
             if (innerTexts.Count == 1)
                 organizationalUnit = name;

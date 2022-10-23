@@ -1,4 +1,4 @@
-﻿using PkMechScheduler.Frontend.Services;
+﻿using PkMechScheduler.Infrastructure.Services;
 
 namespace PkMechScheduler.Frontend.Views;
 

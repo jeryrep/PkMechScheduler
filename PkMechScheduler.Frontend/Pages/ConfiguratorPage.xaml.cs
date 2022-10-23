@@ -2,8 +2,8 @@
 using Microsoft.Maui.Controls.Shapes;
 using PkMechScheduler.Database.Models;
 using PkMechScheduler.Frontend.Helpers;
-using PkMechScheduler.Frontend.Services;
 using PkMechScheduler.Frontend.Views;
+using PkMechScheduler.Infrastructure.Services;
 
 namespace PkMechScheduler.Frontend.Pages;
 

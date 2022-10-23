@@ -1,6 +1,6 @@
-﻿using PkMechScheduler.Database.Models;
-using PkMechScheduler.Frontend.Enums;
-using PkMechScheduler.Frontend.Interfaces;
+﻿using PkMechScheduler.Database.Enums;
+using PkMechScheduler.Database.Models;
+using PkMechScheduler.Infrastructure.Interfaces;
 
 namespace PkMechScheduler.Frontend.Pages;
 
@@ -20,7 +20,7 @@ public partial class TeacherSchedulePage
     }
 
     private async Task GenerateSchedule() => ScheduleGridView.GenerateSchedule(
-        (await _databaseService.GetTeacherBlocks(Preferences.Get(nameof(Preference.Teacher), string.Empty))).Where(FiltersApply));
+        (await _databaseService.GetTeacherBlocks(Preferences.Get(nameof(Preference.Teacher), string.Empty), Preferences.Get(nameof(Preference.Teacher), string.Empty))).Where(FiltersApply));
 
     private bool FiltersApply(BaseBlock model) => model.EvenWeek == null || model.EvenWeek == WeekLabel.Text.StartsWith("P");
 
@@ -47,5 +47,5 @@ public partial class TeacherSchedulePage
     }
 
     private async void ForceUpdate(object sender, EventArgs e) => ScheduleGridView.GenerateSchedule(
-        (await _databaseService.GetTeacherBlocks(Preferences.Get(nameof(Preference.Teacher), string.Empty), true)).Where(FiltersApply));
+        (await _databaseService.GetTeacherBlocks(Preferences.Get(nameof(Preference.Teacher), string.Empty), Preferences.Get(nameof(Preference.Teacher), string.Empty), true)).Where(FiltersApply));
 }

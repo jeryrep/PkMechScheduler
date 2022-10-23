@@ -1,6 +1,6 @@
-﻿using PkMechScheduler.Database.Models;
-using PkMechScheduler.Frontend.Enums;
-using PkMechScheduler.Frontend.Interfaces;
+﻿using PkMechScheduler.Database.Enums;
+using PkMechScheduler.Database.Models;
+using PkMechScheduler.Infrastructure.Interfaces;
 
 namespace PkMechScheduler.Frontend.Pages;
 
@@ -46,13 +46,9 @@ public partial class WelcomePage
     private async void SavePreferences(object sender, EventArgs e)
     {
         if (StudentButton.IsChecked)
-        {
             await Shell.Current.GoToAsync($"///{nameof(SchedulePage)}");
-        } 
         else if (TeacherButton.IsChecked)
-        {
             await Shell.Current.GoToAsync($"///{nameof(TeacherSchedulePage)}");
-        }
     }
 
     private void OnStudentChecked(object sender, CheckedChangedEventArgs e)
@@ -79,16 +75,17 @@ public partial class WelcomePage
     private async void UpdateSubjects(object sender, EventArgs e)
     {
         var picker = sender as Picker;
-        var allInOne = await _databaseService.GetBlocks(picker?.SelectedItem.ToString());
+        var allInOne = (await _databaseService.GetBlocks(picker?.SelectedItem.ToString()!,
+            Preferences.Get(nameof(Preference.Course), string.Empty))).ToList();
         Preferences.Set(nameof(Preference.Course), picker?.SelectedItem.ToString());
         _views.ForEach(x => GroupsSelect.Remove(x));
         _views.Clear();
-        AddSubjectCheckboxList(SubjectType.Lecture, allInOne);
-        AddSubjectCheckboxList(SubjectType.Exercise, allInOne);
-        AddSubjectCheckboxList(SubjectType.ComputersLaboratory, allInOne);
-        AddSubjectCheckboxList(SubjectType.Laboratory, allInOne);
-        AddSubjectCheckboxList(SubjectType.Projects, allInOne);
-        AddSubjectCheckboxList(SubjectType.Seminars, allInOne);
+        AddSubjectPicker(SubjectType.Lecture, allInOne);
+        AddSubjectPicker(SubjectType.Exercise, allInOne);
+        AddSubjectPicker(SubjectType.ComputersLaboratory, allInOne);
+        AddSubjectPicker(SubjectType.Laboratory, allInOne);
+        AddSubjectPicker(SubjectType.Projects, allInOne);
+        AddSubjectPicker(SubjectType.Seminars, allInOne);
         AddWfPicker(allInOne);
     }
 
@@ -125,7 +122,7 @@ public partial class WelcomePage
         Preferences.Set("WF", picker!.SelectedIndex == 1 ? "M" : "K");
     }
 
-    private void AddSubjectCheckboxList(SubjectType type, IEnumerable<StudentBlock> blocks)
+    private void AddSubjectPicker(SubjectType type, IEnumerable<StudentBlock> blocks)
     {
         var filteredBlocks = blocks.Where(x => x.Group!.StartsWith((char)type) && x.Group!.Length != 1).ToList();
         if (filteredBlocks.Count == 0) return;
@@ -135,13 +132,19 @@ public partial class WelcomePage
         var picker = new Picker
         {
             ItemsSource = list,
-            WidthRequest = 100,
-            SelectedIndex = Preferences.ContainsKey(((char)type).ToString())
-                ? Preferences.Get(((char)type).ToString(), string.Empty).Last() - 49
-                : 0
+            WidthRequest = 100
         };
+        var index = Preferences.Get(((char)type).ToString(), string.Empty).Last() - 49;
+        if (index > groupCount - 1)
+        {
+            Preferences.Set(((char)type).ToString(), $"{(char)type}01");
+            picker.SelectedIndex = 0;
+        }
+        else
+            picker.SelectedIndex = index;
+
         picker.SelectedIndexChanged += PickerOnSelectedIndexChanged;
-        
+
 
         var layout = new HorizontalStackLayout
         {

@@ -1,4 +1,4 @@
-﻿namespace PkMechScheduler.Frontend.Enums;
+﻿namespace PkMechScheduler.Database.Enums;
 
 public enum Mode
 {

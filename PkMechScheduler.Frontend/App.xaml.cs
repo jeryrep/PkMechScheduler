@@ -1,4 +1,4 @@
-﻿using PkMechScheduler.Frontend.Enums;
+﻿using PkMechScheduler.Database.Enums;
 #if WINDOWS
 using Microsoft.UI;
 using Microsoft.UI.Windowing;

@@ -1,11 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Maui.Controls.Compatibility;
 using PkMechScheduler.Database;
+using PkMechScheduler.Database.Enums;
 using PkMechScheduler.Database.Models;
-using PkMechScheduler.Frontend.Enums;
-using PkMechScheduler.Frontend.Interfaces;
+using PkMechScheduler.Infrastructure.Interfaces;
 
-namespace PkMechScheduler.Frontend.Services;
+namespace PkMechScheduler.Infrastructure.Services;
 
 public class DatabaseService : IDatabaseService
 {
@@ -24,7 +23,7 @@ public class DatabaseService : IDatabaseService
         await ClearTable(nameof(_context.Groups));
         await ClearTable(nameof(_context.Rooms));
         await ClearTable(nameof(_context.Teachers));
-        await _serializerService.AddGroupsToDb(_scrapService.ScrapGroupsTable().Result);
+        await _serializerService.AddGroupsToDb(_scrapService.ScrapGroupsTeachersRoomsInfo().Result);
     }
 
     public async Task<Dictionary<string, string>> GetGroups(bool force = false)
@@ -43,34 +42,31 @@ public class DatabaseService : IDatabaseService
         return _context.Teachers.AsEnumerable().DistinctBy(x => x.Name).ToDictionary(x => x.Name, y => y.Link);
     }
 
-    public async Task<List<StudentBlock>> GetBlocks(string courseKey, bool force = false)
+    public async Task<IEnumerable<StudentBlock>> GetBlocks(string courseKey, string preference, bool force = false)
     {
-        if (await _context.StudentBlocks.AnyAsync() && Preferences.Get(nameof(Preference.Course), string.Empty) == courseKey && !force)
+        if (await _context.StudentBlocks.AnyAsync() && preference == courseKey && !force)
             return await _context.StudentBlocks.ToListAsync();
         await ClearTable(nameof(_context.StudentBlocks));
         var links = await _context.Groups.Where(x => x.Name.Contains(courseKey)).Select(x => x.Link).ToListAsync();
-        foreach (var link in links)
-            await _serializerService.AddScheduleToDb(_scrapService.ScrapSchedule(link).Result, Preference.Student);
+        await _serializerService.ConvertDocumentsToBlockList(_scrapService.ScrapSchedules(links), Preference.Student);
         return await _context.StudentBlocks.ToListAsync();
     }
 
-    public async Task<List<TeacherBlock>> GetTeacherBlocks(string teacher, bool force = false)
+    public async Task<IEnumerable<TeacherBlock>> GetTeacherBlocks(string teacher, string preference, bool force = false)
     {
-        if (await _context.TeacherBlocks.AnyAsync() && Preferences.Get(nameof(Preference.Teacher), string.Empty) == teacher && !force)
+        if (await _context.TeacherBlocks.AnyAsync() && preference == teacher && !force)
             return await _context.TeacherBlocks.ToListAsync();
         await ClearTable(nameof(_context.TeacherBlocks));
-        var links = await _context.Teachers.Where(x => x.Name.Contains(teacher)).Select(x => x.Link).ToListAsync();
-        foreach (var link in links)
-            await _serializerService.AddScheduleToDb(_scrapService.ScrapSchedule(link).Result, Preference.Teacher);
+        var links = await _context.Teachers.Where(x => x.Name!.Contains(teacher)).Select(x => x.Link).ToListAsync();
+        await _serializerService.ConvertDocumentsToBlockList(_scrapService.ScrapSchedules(links!), Preference.Teacher);
         return await _context.TeacherBlocks.ToListAsync();
     }
 
     public async Task SaveTeacherBlocksToDb(string teacher)
     {
         await ClearTable(nameof(_context.TeacherBlocks));
-        var links = await _context.Teachers.Where(x => x.Name.Contains(teacher)).Select(x => x.Link).ToListAsync();
-        foreach (var link in links)
-            await _serializerService.AddScheduleToDb(_scrapService.ScrapSchedule(link).Result, Preference.Teacher);
+        var links = await _context.Teachers.Where(x => x.Name!.Contains(teacher)).Select(x => x.Link).ToListAsync();
+        await _serializerService.ConvertDocumentsToBlockList(_scrapService.ScrapSchedules(links!), Preference.Teacher);
     }
 
     private async Task ClearTable(string table)

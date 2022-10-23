@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Maui;
 using Microsoft.EntityFrameworkCore;
 using PkMechScheduler.Database;
-using PkMechScheduler.Frontend.Interfaces;
-using PkMechScheduler.Frontend.Services;
+using PkMechScheduler.Infrastructure.Interfaces;
+using PkMechScheduler.Infrastructure.Services;
 
 namespace PkMechScheduler.Frontend;
 

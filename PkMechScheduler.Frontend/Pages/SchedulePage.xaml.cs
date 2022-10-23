@@ -1,6 +1,6 @@
-﻿using PkMechScheduler.Database.Models;
-using PkMechScheduler.Frontend.Enums;
-using PkMechScheduler.Frontend.Interfaces;
+﻿using PkMechScheduler.Database.Enums;
+using PkMechScheduler.Database.Models;
+using PkMechScheduler.Infrastructure.Interfaces;
 
 namespace PkMechScheduler.Frontend.Pages;
 
@@ -10,7 +10,8 @@ public partial class SchedulePage
 
     protected override async void OnNavigatedTo(NavigatedToEventArgs args)
     {
-        var fullSchedule = await _databaseService.GetBlocks(Preferences.Get(nameof(Preference.Course), string.Empty));
+        var fullSchedule = (await _databaseService.GetBlocks(Preferences.Get(nameof(Preference.Course), string.Empty),
+            Preferences.Get(nameof(Preference.Course), string.Empty))).ToList();
         LectureLayout.IsVisible = fullSchedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Lecture).ToString()));
         ExerciseLayout.IsVisible = fullSchedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Exercise).ToString()));
         LaboratoryLayout.IsVisible =
@@ -44,7 +45,8 @@ public partial class SchedulePage
     }
 
     private async Task GenerateSchedule() => ScheduleGridView.GenerateSchedule(
-        (await _databaseService.GetBlocks(Preferences.Get(nameof(Preference.Course), string.Empty))).Where(FiltersApply));
+        (await _databaseService.GetBlocks(Preferences.Get(nameof(Preference.Course), string.Empty),
+            Preferences.Get(nameof(Preference.Course), string.Empty))).Where(FiltersApply));
 
     private bool FiltersApply(StudentBlock model) =>
         (model.EvenWeek == null || model.EvenWeek == WeekLabel.Text.StartsWith("P")) &&
@@ -88,5 +90,6 @@ public partial class SchedulePage
     }
 
     private async void ForceUpdate(object sender, EventArgs e) => ScheduleGridView.GenerateSchedule(
-            (await _databaseService.GetBlocks(Preferences.Get(nameof(Preference.Course), string.Empty), true)).Where(FiltersApply));
+        (await _databaseService.GetBlocks(Preferences.Get(nameof(Preference.Course), string.Empty),
+            Preferences.Get(nameof(Preference.Course), string.Empty), true)).Where(FiltersApply));
 }
