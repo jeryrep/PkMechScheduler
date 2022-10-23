@@ -13,7 +13,11 @@ public partial class TeacherSchedulePage
         InitializeComponent();
     }
 
-    protected override async void OnNavigatedTo(NavigatedToEventArgs args) => await GenerateSchedule();
+    protected override async void OnNavigatedTo(NavigatedToEventArgs args)
+    {
+        Title = Preferences.Get(nameof(Preference.Teacher), "Rozkład zajęć nauczyciela");
+        await GenerateSchedule();
+    }
 
     private async Task GenerateSchedule() => ScheduleGridView.GenerateSchedule(
         (await _databaseService.GetTeacherBlocks(Preferences.Get(nameof(Preference.Teacher), string.Empty))).Where(FiltersApply));

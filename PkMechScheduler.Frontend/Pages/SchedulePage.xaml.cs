@@ -22,6 +22,7 @@ public partial class SchedulePage
         WfLayout.IsVisible = fullSchedule.Any(x => x.Group is "K" or "M");
         EnglishLayout.IsVisible = fullSchedule.Any(x => x.Group == ((char)SubjectType.Exercise).ToString());
         await GenerateSchedule();
+        Title = Preferences.Get(nameof(Preference.Course), "Rozkład zajęć");
     }
 
     protected override void OnNavigatedFrom(NavigatedFromEventArgs args)

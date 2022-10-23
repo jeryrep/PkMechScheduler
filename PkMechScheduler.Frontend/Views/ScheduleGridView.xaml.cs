@@ -40,11 +40,11 @@ public partial class ScheduleGridView
             
             var block = new Frame
             {
-                Background = Color.FromArgb("#6E6E6E"),
                 Padding = 5,
                 CornerRadius = 4,
             };
             block.SetAppThemeColor(Microsoft.Maui.Controls.Frame.BorderColorProperty, Color.FromArgb("#C8C8C8"), Color.FromArgb("#404040"));
+            block.SetAppThemeColor(BackgroundColorProperty, Color.FromArgb("#ffeeff"), Color.FromArgb("#c48b9f"));
             Label label;
             if (blockModel is TeacherBlock { Description: { } } tBlock)
                 label = new Label
