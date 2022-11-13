@@ -37,7 +37,6 @@ public partial class ScheduleGridView
 
         foreach (var blockModel in blocks)
         {
-            
             var block = new Frame
             {
                 Padding = 5,

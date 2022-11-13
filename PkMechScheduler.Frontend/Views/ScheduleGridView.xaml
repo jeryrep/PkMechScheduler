@@ -6,33 +6,33 @@
     <Grid x:Name="ScheduleGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition x:Name="Hour" Width="100" />
-            <ColumnDefinition x:Name="Monday" />
-            <ColumnDefinition x:Name="Tuesday" />
-            <ColumnDefinition x:Name="Wednesday" />
-            <ColumnDefinition x:Name="Thursday" />
-            <ColumnDefinition x:Name="Friday" />
+            <ColumnDefinition x:Name="Monday" Width="*"/>
+            <ColumnDefinition x:Name="Tuesday" Width="*"/>
+            <ColumnDefinition x:Name="Wednesday" Width="*"/>
+            <ColumnDefinition x:Name="Thursday" Width="*"/>
+            <ColumnDefinition x:Name="Friday" Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition x:Name="Header" />
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Frame Grid.Column="0" Grid.Row="0">
-            <Label Text="Godz" HorizontalTextAlignment="Center" />
+            <Label Text="Godz" HorizontalTextAlignment="Center"/>
         </Frame>
         <Frame Grid.Column="1" Grid.Row="0">
             <Label Text="Poniedziałek" HorizontalTextAlignment="Center" />
@@ -138,7 +138,7 @@
         <Border Grid.Row="13" Grid.Column="5" Grid.RowSpan="2" />
         <Border Grid.Row="15" Grid.Column="5" Grid.RowSpan="2" />
 
-        <Border Grid.Row="2" Grid.Column="1" Grid.RowSpan="2" Style="{StaticResource DashedBorder}" />
+        <Border Grid.Row="2" Grid.Column="1" Grid.RowSpan="2" Style="{StaticResource DashedBorder}"/>
         <Border Grid.Row="4" Grid.Column="1" Grid.RowSpan="2" Style="{StaticResource DashedBorder}" />
         <Border Grid.Row="6" Grid.Column="1" Grid.RowSpan="2" Style="{StaticResource DashedBorder}" />
         <Border Grid.Row="8" Grid.Column="1" Grid.RowSpan="2" Style="{StaticResource DashedBorder}" />
