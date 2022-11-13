@@ -23,7 +23,14 @@ public class DatabaseService : IDatabaseService
         await ClearTable(nameof(_context.Groups));
         await ClearTable(nameof(_context.Rooms));
         await ClearTable(nameof(_context.Teachers));
-        await _serializerService.AddGroupsToDb(_scrapService.ScrapGroupsTeachersRoomsInfo().Result);
+        var document = _scrapService.ScrapGroupsTeachersRoomsInfo().Result;
+        var groups = _serializerService.GetGroupListFromDocument(document);
+        await _context.Groups.AddRangeAsync(groups);
+        var teachers = _serializerService.GetTeacherListFromDocument(document);
+        await _context.Teachers.AddRangeAsync(teachers);
+        var rooms = _serializerService.GetRoomListFromDocument(document);
+        await _context.Rooms.AddRangeAsync(rooms);
+        await _context.SaveChangesAsync();
     }
 
     public async Task<Dictionary<string, string>> GetGroups(bool force = false)
@@ -48,7 +55,9 @@ public class DatabaseService : IDatabaseService
             return await _context.StudentBlocks.ToListAsync();
         await ClearTable(nameof(_context.StudentBlocks));
         var links = await _context.Groups.Where(x => x.Name.Contains(courseKey)).Select(x => x.Link).ToListAsync();
-        await _serializerService.ConvertDocumentsToBlockList(_scrapService.ScrapSchedules(links), Preference.Student);
+        var list = _serializerService.ConvertDocumentsToBlockList(_scrapService.ScrapSchedules(links), Preference.Student);
+        await _context.StudentBlocks.AddRangeAsync(list.OfType<StudentBlock>());
+        await _context.SaveChangesAsync();
         return await _context.StudentBlocks.ToListAsync();
     }
 
@@ -58,7 +67,9 @@ public class DatabaseService : IDatabaseService
             return await _context.TeacherBlocks.ToListAsync();
         await ClearTable(nameof(_context.TeacherBlocks));
         var links = await _context.Teachers.Where(x => x.Name!.Contains(teacher)).Select(x => x.Link).ToListAsync();
-        await _serializerService.ConvertDocumentsToBlockList(_scrapService.ScrapSchedules(links!), Preference.Teacher);
+        var list = _serializerService.ConvertDocumentsToBlockList(_scrapService.ScrapSchedules(links!), Preference.Teacher);
+        await _context.TeacherBlocks.AddRangeAsync(list.OfType<TeacherBlock>());
+        await _context.SaveChangesAsync();
         return await _context.TeacherBlocks.ToListAsync();
     }
 
@@ -66,7 +77,9 @@ public class DatabaseService : IDatabaseService
     {
         await ClearTable(nameof(_context.TeacherBlocks));
         var links = await _context.Teachers.Where(x => x.Name!.Contains(teacher)).Select(x => x.Link).ToListAsync();
-        await _serializerService.ConvertDocumentsToBlockList(_scrapService.ScrapSchedules(links!), Preference.Teacher);
+        var list = _serializerService.ConvertDocumentsToBlockList(_scrapService.ScrapSchedules(links!), Preference.Teacher);
+        await _context.TeacherBlocks.AddRangeAsync(list.OfType<TeacherBlock>());
+        await _context.SaveChangesAsync();
     }
 
     private async Task ClearTable(string table)

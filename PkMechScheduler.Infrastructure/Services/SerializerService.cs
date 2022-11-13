@@ -1,8 +1,6 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
 using AngleSharp.Dom;
-using Microsoft.EntityFrameworkCore;
-using PkMechScheduler.Database;
 using PkMechScheduler.Database.Enums;
 using PkMechScheduler.Database.Models;
 using PkMechScheduler.Infrastructure.Interfaces;
@@ -12,10 +10,7 @@ namespace PkMechScheduler.Infrastructure.Services;
 
 public class SerializerService : ISerializerService
 {
-    private readonly SchedulerContext _context;
-    public SerializerService(SchedulerContext context) => _context = context;
-
-    public async Task ConvertDocumentToBlockList(IDocument document, Preference mode)
+    private static void HandleSingleDocument(IParentNode document, Preference mode, List<BaseBlock> returnList)
     {
         var groupNumber = Regex.Replace(document.QuerySelector("span.tytulnapis")?.InnerHtml!, "<.*?>", string.Empty).Last();
         var table = document.QuerySelector("table.tabela");
@@ -26,15 +21,24 @@ public class SerializerService : ISerializerService
 
         UnifyBothWeekSubjects(list);
 
-        await SaveUniqueBlocks(list, mode);
+        SaveUniqueBlocks(list, mode, returnList);
     }
 
-    public async Task ConvertDocumentsToBlockList(IEnumerable<IDocument> documents, Preference mode)
+    public List<BaseBlock> ConvertDocumentToBlockList(IDocument document, Preference mode)
     {
-        foreach (var document in documents) await ConvertDocumentToBlockList(document, mode);
+        var list = new List<BaseBlock>();
+        HandleSingleDocument(document, mode, list);
+        return list;
     }
 
-    private async Task SaveUniqueBlocks(IEnumerable<BaseBlock> list, Preference mode)
+    public List<BaseBlock> ConvertDocumentsToBlockList(IEnumerable<IDocument> documents, Preference mode)
+    {
+        var list = new List<BaseBlock>();
+        foreach (var document in documents) HandleSingleDocument(document, mode, list);
+        return list;
+    }
+
+    private static void SaveUniqueBlocks(IEnumerable<BaseBlock> list, Preference mode, List<BaseBlock> returnList)
     {
         switch (mode)
         {
@@ -42,31 +46,27 @@ public class SerializerService : ISerializerService
                 foreach (var blockModel in list.Select(block => new
                              {
                                  blockModel = (StudentBlock)block,
-                                 possibleDuplicate = _context.StudentBlocks.ToListAsync()
-                                     .Result.Find(x =>
+                                 possibleDuplicate = returnList.Find(x =>
                                          x.DayOfWeek == block.DayOfWeek && x.Name == block.Name &&
                                          x.Group == block.Group && x.Place == block.Place &&
                                          x.EvenWeek == block.EvenWeek)
                              })
                              .Where(t => t.possibleDuplicate == null)
-                             .Select(t => t?.blockModel)) await _context.StudentBlocks.AddAsync(blockModel!);
+                             .Select(t => t.blockModel)) returnList.Add(blockModel);
                 break;
             case Preference.Teacher:
                 foreach (var blockModel in list.Select(block => new
                              {
                                  blockModel = (TeacherBlock)block,
-                                 possibleDuplicate = _context.TeacherBlocks.ToListAsync()
-                                     .Result.Find(x =>
+                                 possibleDuplicate = returnList.OfType<TeacherBlock>().ToList().Find(x =>
                                          x.DayOfWeek == block.DayOfWeek && x.Name == block.Name &&
                                          x.Group == block.Group && x.Place == block.Place &&
                                          x.EvenWeek == block.EvenWeek && x.Courses == ((TeacherBlock)block).Courses)
                              })
                              .Where(t => t.possibleDuplicate == null)
-                             .Select(t => t.blockModel)) await _context.TeacherBlocks.AddAsync(blockModel);
+                             .Select(t => t.blockModel)) returnList.Add(blockModel);
                 break;
         }
-
-        await _context.SaveChangesAsync();
     }
 
     private static void UnifyBothWeekSubjects(List<BaseBlock> list)
@@ -258,36 +258,39 @@ public class SerializerService : ISerializerService
         return sb.ToString()[..^1];
     }
 
-    public async Task AddGroupsToDb(IDocument document)
+    public IEnumerable<Group> GetGroupListFromDocument(IDocument document)
     {
         var paragraphs = document.QuerySelector("div#oddzialy")?.QuerySelectorAll("p");
-        foreach (var paragraph in paragraphs!.Select(x => x.InnerHtml))
-        {
-            var pFrom = paragraph.IndexOf("/", StringComparison.Ordinal);
-            var pTo = paragraph[(pFrom + 1)..].IndexOf("\"", StringComparison.Ordinal);
-            await _context.Groups.AddAsync(new Group
+        return paragraphs!.Select(x => x.InnerHtml)
+            .Select(paragraph => new { paragraph, pFrom = paragraph.IndexOf("/", StringComparison.Ordinal) })
+            .Select(t => new { t, pTo = t.paragraph[(t.pFrom + 1)..].IndexOf("\"", StringComparison.Ordinal) })
+            .Select(t => new Group
             {
-                Name = Regex.Replace(paragraph, "<.*?>", string.Empty),
-                Link = paragraph.Substring(pFrom + 1, pTo)
+                Name = Regex.Replace(t.t.paragraph, "<.*?>", string.Empty),
+                Link = t.t.paragraph.Substring(t.t.pFrom + 1, t.pTo)
             });
-        }
+    }
 
+    public IEnumerable<Teacher> GetTeacherListFromDocument(IDocument document)
+    {
         var teachers = document.QuerySelector("div#nauczyciele")?.QuerySelectorAll("p");
-        foreach (var teacher in teachers!.Select(x => x.InnerHtml))
-        {
-            var pFrom = teacher.IndexOf("/", StringComparison.Ordinal);
-            var pTo = teacher[(pFrom + 1)..].IndexOf("\"", StringComparison.Ordinal);
-            var innerTexts = Regex.Replace(teacher, "<.*?>", string.Empty).Split(" ");
-            var name = ParseStringWithDash(innerTexts.FirstOrDefault()!);
-            await _context.Teachers.AddAsync(new Teacher
+        return teachers!.Select(x => x.InnerHtml)
+            .Select(teacher => new { teacher, pFrom = teacher.IndexOf("/", StringComparison.Ordinal) })
+            .Select(t => new { t, pTo = t.teacher[(t.pFrom + 1)..].IndexOf("\"", StringComparison.Ordinal) })
+            .Select(t => new { t, innerTexts = Regex.Replace(t.t.teacher, "<.*?>", string.Empty).Split(" ") })
+            .Select(t => new { t, name = ParseStringWithDash(t.innerTexts.FirstOrDefault()!) })
+            .Select(t => new Teacher
             {
-                Name = name,
-                Link = teacher.Substring(pFrom + 1, pTo),
-                EvenWeek = innerTexts.FirstOrDefault()!.LastOrDefault() == 'p'
+                Name = t.name,
+                Link = t.t.t.t.teacher.Substring(t.t.t.t.pFrom + 1, t.t.t.pTo),
+                EvenWeek = t.t.innerTexts.FirstOrDefault()!.LastOrDefault() == 'p'
             });
-        }
+    }
 
+    public IEnumerable<Room> GetRoomListFromDocument(IDocument document)
+    {
         var rooms = document.QuerySelector("div#sale")?.QuerySelectorAll("p");
+        var list = new List<Room>();
         foreach (var room in rooms!.Select(x => x.InnerHtml).Skip(1))
         {
             var innerText = Regex.Replace(room, "<.*?>", string.Empty);
@@ -318,7 +321,7 @@ public class SerializerService : ISerializerService
                 description = stringBuilder.ToString();
             }
 
-            await _context.Rooms.AddAsync(new Room
+            list.Add(new Room
             {
                 Name = name,
                 Description = description,
@@ -327,7 +330,6 @@ public class SerializerService : ISerializerService
                 EvenWeek = innerTexts.FirstOrDefault()!.LastOrDefault() == 'p'
             });
         }
-
-        await _context.SaveChangesAsync();
+        return list;
     }
 }
