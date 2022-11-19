@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace PkMechScheduler.Database.Models;
+namespace MechScraper.Models;
 
 [Table("TeacherBlocks")]
 public class TeacherBlock : BaseBlock

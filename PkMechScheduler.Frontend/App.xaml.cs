@@ -1,4 +1,5 @@
-﻿using PkMechScheduler.Database.Enums;
+﻿using MechScraper.Enums;
+using PkMechScheduler.Database.Enums;
 #if WINDOWS
 using Microsoft.UI;
 using Microsoft.UI.Windowing;

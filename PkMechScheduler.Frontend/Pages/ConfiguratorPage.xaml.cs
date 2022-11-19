@@ -1,22 +1,21 @@
 ﻿using System.Text.RegularExpressions;
+using MechScraper.Models;
 using Microsoft.Maui.Controls.Shapes;
-using PkMechScheduler.Database.Models;
 using PkMechScheduler.Frontend.Helpers;
 using PkMechScheduler.Frontend.Views;
-using PkMechScheduler.Infrastructure.Services;
 
 namespace PkMechScheduler.Frontend.Pages;
 
 public partial class ConfiguratorPage
 {
-    private readonly ScrapService _scheduleService;
+    //private readonly ScrapService _scheduleService;
     private List<Frame> _frames = new();
     private readonly Dictionary<string, string> _groups;
     private List<IView> _filters = new();
 
     public ConfiguratorPage()
     {
-        _scheduleService = Application.Current?.Handler.MauiContext?.Services.GetService<ScrapService>();
+        //_scheduleService = Application.Current?.Handler.MauiContext?.Services.GetService<ScrapService>();
         InitializeComponent();
         //_groups = _scheduleService?.GetGroups();
         for (var i = 1; i <= 16; i++)

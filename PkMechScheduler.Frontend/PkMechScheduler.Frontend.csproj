@@ -145,7 +145,6 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\PkMechScheduler.Database\PkMechScheduler.Database.csproj" />
-	  <ProjectReference Include="..\PkMechScheduler.Infrastructure\PkMechScheduler.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>

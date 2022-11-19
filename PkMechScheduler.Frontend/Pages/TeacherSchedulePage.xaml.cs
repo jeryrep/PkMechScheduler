@@ -1,6 +1,6 @@
-﻿using PkMechScheduler.Database.Enums;
-using PkMechScheduler.Database.Models;
-using PkMechScheduler.Infrastructure.Interfaces;
+﻿using MechScraper.Models;
+using PkMechScheduler.Database.Enums;
+using PkMechScheduler.Frontend.Interfaces;
 
 namespace PkMechScheduler.Frontend.Pages;
 

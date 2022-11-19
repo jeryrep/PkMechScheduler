@@ -1,4 +1,4 @@
-﻿namespace PkMechScheduler.Database.Enums;
+﻿namespace MechScraper.Enums;
 
 public enum SubjectType
 {

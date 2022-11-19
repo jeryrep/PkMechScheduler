@@ -3,10 +3,9 @@ using MechScraper.Enums;
 using MechScraper.Models;
 using Microsoft.EntityFrameworkCore;
 using PkMechScheduler.Database;
-using PkMechScheduler.Database.Enums;
-using PkMechScheduler.Infrastructure.Interfaces;
+using PkMechScheduler.Frontend.Interfaces;
 
-namespace PkMechScheduler.Infrastructure.Services;
+namespace PkMechScheduler.Frontend.Services;
 
 public class DatabaseService : IDatabaseService
 {

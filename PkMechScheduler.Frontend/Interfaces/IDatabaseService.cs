@@ -1,6 +1,6 @@
 ﻿using MechScraper.Models;
 
-namespace PkMechScheduler.Infrastructure.Interfaces;
+namespace PkMechScheduler.Frontend.Interfaces;
 
 public interface IDatabaseService
 {

@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Maui;
 using Microsoft.EntityFrameworkCore;
 using PkMechScheduler.Database;
-using PkMechScheduler.Infrastructure.Interfaces;
-using PkMechScheduler.Infrastructure.Services;
+using PkMechScheduler.Frontend.Interfaces;
+using PkMechScheduler.Frontend.Services;
 
 namespace PkMechScheduler.Frontend;
 
@@ -20,8 +20,6 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
         builder.Services.AddDbContext<SchedulerContext>(x => x.UseSqlite("scheduler.db"));
-        builder.Services.AddSingleton<ISerializerService, SerializerService>();
-        builder.Services.AddSingleton<IScrapService, ScrapService>();
         builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
         return builder.Build();
     }

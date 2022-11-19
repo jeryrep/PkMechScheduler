@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using PkMechScheduler.Database.Models;
+﻿using MechScraper.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace PkMechScheduler.Database;
 

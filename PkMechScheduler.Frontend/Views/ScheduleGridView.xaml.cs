@@ -1,5 +1,5 @@
-﻿using Microsoft.Maui.Controls.Shapes;
-using PkMechScheduler.Database.Models;
+﻿using MechScraper.Models;
+using Microsoft.Maui.Controls.Shapes;
 using PkMechScheduler.Frontend.Helpers;
 
 namespace PkMechScheduler.Frontend.Views;

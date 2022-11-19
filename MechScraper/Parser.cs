@@ -1,16 +1,15 @@
-﻿using System.Text;
+﻿using AngleSharp.Dom;
+using MechScraper.Enums;
+using MechScraper.Models;
 using System.Text.RegularExpressions;
-using AngleSharp.Dom;
-using PkMechScheduler.Database.Enums;
-using PkMechScheduler.Database.Models;
-using PkMechScheduler.Infrastructure.Interfaces;
-using Group = PkMechScheduler.Database.Models.Group;
+using System.Text;
+using Group = MechScraper.Models.Group;
 
-namespace PkMechScheduler.Infrastructure.Services;
+namespace MechScraper;
 
-public class SerializerService : ISerializerService
+public static class Parser
 {
-    private static void HandleSingleDocument(IParentNode document, Preference mode, List<BaseBlock> returnList)
+    private static void HandleSingleDocument(IParentNode document, Mode mode, List<BaseBlock> returnList)
     {
         var groupNumber = Regex.Replace(document.QuerySelector("span.tytulnapis")?.InnerHtml!, "<.*?>", string.Empty).Last();
         var table = document.QuerySelector("table.tabela");
@@ -24,45 +23,45 @@ public class SerializerService : ISerializerService
         SaveUniqueBlocks(list, mode, returnList);
     }
 
-    public List<BaseBlock> ConvertDocumentToBlockList(IDocument document, Preference mode)
+    public static List<BaseBlock> ConvertDocumentToBlockList(IDocument document, Mode mode)
     {
         var list = new List<BaseBlock>();
         HandleSingleDocument(document, mode, list);
         return list;
     }
 
-    public List<BaseBlock> ConvertDocumentsToBlockList(IEnumerable<IDocument> documents, Preference mode)
+    public static List<BaseBlock> ConvertDocumentsToBlockList(IEnumerable<IDocument> documents, Mode mode)
     {
         var list = new List<BaseBlock>();
         foreach (var document in documents) HandleSingleDocument(document, mode, list);
         return list;
     }
 
-    private static void SaveUniqueBlocks(IEnumerable<BaseBlock> list, Preference mode, List<BaseBlock> returnList)
+    private static void SaveUniqueBlocks(IEnumerable<BaseBlock> list, Mode mode, List<BaseBlock> returnList)
     {
         switch (mode)
         {
-            case Preference.Student:
+            case Mode.Student:
                 foreach (var blockModel in list.Select(block => new
-                             {
-                                 blockModel = (StudentBlock)block,
-                                 possibleDuplicate = returnList.Find(x =>
-                                         x.DayOfWeek == block.DayOfWeek && x.Name == block.Name &&
-                                         x.Group == block.Group && x.Place == block.Place &&
-                                         x.EvenWeek == block.EvenWeek)
-                             })
+                {
+                    blockModel = (StudentBlock)block,
+                    possibleDuplicate = returnList.Find(x =>
+                            x.DayOfWeek == block.DayOfWeek && x.Name == block.Name &&
+                            x.Group == block.Group && x.Place == block.Place &&
+                            x.EvenWeek == block.EvenWeek)
+                })
                              .Where(t => t.possibleDuplicate == null)
                              .Select(t => t.blockModel)) returnList.Add(blockModel);
                 break;
-            case Preference.Teacher:
+            case Mode.Teacher:
                 foreach (var blockModel in list.Select(block => new
-                             {
-                                 blockModel = (TeacherBlock)block,
-                                 possibleDuplicate = returnList.OfType<TeacherBlock>().ToList().Find(x =>
-                                         x.DayOfWeek == block.DayOfWeek && x.Name == block.Name &&
-                                         x.Group == block.Group && x.Place == block.Place &&
-                                         x.EvenWeek == block.EvenWeek && x.Courses == ((TeacherBlock)block).Courses)
-                             })
+                {
+                    blockModel = (TeacherBlock)block,
+                    possibleDuplicate = returnList.OfType<TeacherBlock>().ToList().Find(x =>
+                            x.DayOfWeek == block.DayOfWeek && x.Name == block.Name &&
+                            x.Group == block.Group && x.Place == block.Place &&
+                            x.EvenWeek == block.EvenWeek && x.Courses == ((TeacherBlock)block).Courses)
+                })
                              .Where(t => t.possibleDuplicate == null)
                              .Select(t => t.blockModel)) returnList.Add(blockModel);
                 break;
@@ -85,7 +84,7 @@ public class SerializerService : ISerializerService
         }
     }
 
-    private static void HandleRow(IParentNode row, int i, char groupNumber, List<BaseBlock> list, Preference mode)
+    private static void HandleRow(IParentNode row, int i, char groupNumber, List<BaseBlock> list, Mode mode)
     {
         var timeSpan = row.QuerySelector("td.g")?.InnerHtml.Split("-");
         foreach (var block in row.QuerySelectorAll("td.l").Select((cell, j) => (cell, j)))
@@ -94,10 +93,10 @@ public class SerializerService : ISerializerService
                 continue;
             switch (mode)
             {
-                case Preference.Student:
+                case Mode.Student:
                     HandleBlock(i, groupNumber, list, block.cell, block.j, timeSpan!);
                     break;
-                case Preference.Teacher:
+                case Mode.Teacher:
                     HandleTeacherBlock(i, list, block.cell, block.j, timeSpan!);
                     break;
             }
@@ -187,35 +186,35 @@ public class SerializerService : ISerializerService
                     initials = textBlocks[3];
                     break;
                 default:
-                {
-                    foreach (var textBlock in textBlocks)
                     {
-                        if (textBlock is "-P" or "P-" && group != string.Empty)
-                            initials = textBlock;
-                        else if (Regex.IsMatch(textBlock, "^[(][MK][)]") || Regex.IsMatch(textBlock, "[WKLĆSP]0?[0-9]?-"))
+                        foreach (var textBlock in textBlocks)
                         {
-                            group = ParseStringWithDash(textBlock);
-                            switch (group[0])
+                            if (textBlock is "-P" or "P-" && group != string.Empty)
+                                initials = textBlock;
+                            else if (Regex.IsMatch(textBlock, "^[(][MK][)]") || Regex.IsMatch(textBlock, "[WKLĆSP]0?[0-9]?-"))
                             {
-                                case (char)SubjectType.Lecture:
-                                    group = $"{group}01";
-                                    break;
-                                case (char)SubjectType.Seminars:
-                                case (char)SubjectType.Exercise:
-                                    group = $"{group}0{groupNumber}";
-                                    break;
+                                group = ParseStringWithDash(textBlock);
+                                switch (group[0])
+                                {
+                                    case (char)SubjectType.Lecture:
+                                        group = $"{group}01";
+                                        break;
+                                    case (char)SubjectType.Seminars:
+                                    case (char)SubjectType.Exercise:
+                                        group = $"{group}0{groupNumber}";
+                                        break;
+                                }
+
+                                if (textBlock.Contains("-P") || textBlock.Contains("-(P") || textBlock.Contains("-p"))
+                                    evenWeek = true;
+                                else if (textBlock.Contains("-N") || textBlock.Contains("-(N") || textBlock.Contains("-n"))
+                                    evenWeek = false;
                             }
-
-                            if (textBlock.Contains("-P") || textBlock.Contains("-(P") || textBlock.Contains("-p"))
-                                evenWeek = true;
-                            else if (textBlock.Contains("-N") || textBlock.Contains("-(N") || textBlock.Contains("-n"))
-                                evenWeek = false;
+                            else if (textBlock.StartsWith("#") || textBlock.Length == 2) initials = textBlock;
                         }
-                        else if (textBlock.StartsWith("#") || textBlock.Length == 2) initials = textBlock;
-                    }
 
-                    break;
-                }
+                        break;
+                    }
             }
 
             var blockModel = new StudentBlock
@@ -258,7 +257,7 @@ public class SerializerService : ISerializerService
         return sb.ToString()[..^1];
     }
 
-    public IEnumerable<Group> GetGroupListFromDocument(IDocument document)
+    public static IEnumerable<Group> GetGroupListFromDocument(IDocument document)
     {
         var paragraphs = document.QuerySelector("div#oddzialy")?.QuerySelectorAll("p");
         return paragraphs!.Select(x => x.InnerHtml)
@@ -271,7 +270,7 @@ public class SerializerService : ISerializerService
             });
     }
 
-    public IEnumerable<Teacher> GetTeacherListFromDocument(IDocument document)
+    public static IEnumerable<Teacher> GetTeacherListFromDocument(IDocument document)
     {
         var teachers = document.QuerySelector("div#nauczyciele")?.QuerySelectorAll("p");
         return teachers!.Select(x => x.InnerHtml)
@@ -287,7 +286,7 @@ public class SerializerService : ISerializerService
             });
     }
 
-    public IEnumerable<Room> GetRoomListFromDocument(IDocument document)
+    public static IEnumerable<Room> GetRoomListFromDocument(IDocument document)
     {
         var rooms = document.QuerySelector("div#sale")?.QuerySelectorAll("p");
         var list = new List<Room>();

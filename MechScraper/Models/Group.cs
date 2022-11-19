@@ -1,4 +1,4 @@
-﻿namespace PkMechScheduler.Database.Models;
+﻿namespace MechScraper.Models;
 
 public class Group
 {

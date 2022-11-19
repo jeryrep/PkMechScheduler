@@ -1,13 +1,11 @@
-﻿using PkMechScheduler.Infrastructure.Services;
-
-namespace PkMechScheduler.Frontend.Views;
+﻿namespace PkMechScheduler.Frontend.Views;
 
 public partial class StudentFilterView
 {
     private readonly Dictionary<string, string> _groups;
     public StudentFilterView()
     {
-        var scheduleService = Application.Current?.Handler.MauiContext?.Services.GetService<ScrapService>();
+        //var scheduleService = Application.Current?.Handler.MauiContext?.Services.GetService<ScrapService>();
         //_groups = scheduleService?.GetGroups();
         InitializeComponent();
         GroupsPicker.ItemsSource = _groups!.Select(g => g.Key).ToList();
