@@ -20,7 +20,7 @@ public partial class TeacherSchedulePage
     }
 
     private async Task GenerateSchedule() => ScheduleGridView.GenerateSchedule(
-        (await _databaseService.GetTeacherBlocks(Preferences.Get(nameof(Preference.Teacher), string.Empty), Preferences.Get(nameof(Preference.Teacher), string.Empty))).Where(FiltersApply));
+        (await _databaseService.GetTeacherBlocks()).Where(FiltersApply));
 
     private bool FiltersApply(BaseBlock model) => model.EvenWeek == null || model.EvenWeek == WeekLabel.Text.StartsWith("P");
 
@@ -46,6 +46,5 @@ public partial class TeacherSchedulePage
         await GenerateSchedule();
     }
 
-    private async void ForceUpdate(object sender, EventArgs e) => ScheduleGridView.GenerateSchedule(
-        (await _databaseService.GetTeacherBlocks(Preferences.Get(nameof(Preference.Teacher), string.Empty), Preferences.Get(nameof(Preference.Teacher), string.Empty), true)).Where(FiltersApply));
+    private async void ForceUpdate(object sender, EventArgs e) => await GenerateSchedule();
 }

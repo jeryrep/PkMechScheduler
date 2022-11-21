@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PkMechScheduler.Database;
 
@@ -10,9 +11,10 @@ using PkMechScheduler.Database;
 namespace PkMechScheduler.Database.Migrations
 {
     [DbContext(typeof(SchedulerContext))]
-    partial class SchedulerContextModelSnapshot : ModelSnapshot
+    [Migration("20221120113827_AddDescriptionToBaseBlock")]
+    partial class AddDescriptionToBaseBlock
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.11");
@@ -89,9 +91,6 @@ namespace PkMechScheduler.Database.Migrations
                     b.Property<string>("Initials")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("InitialsLink")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
 
@@ -99,9 +98,6 @@ namespace PkMechScheduler.Database.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Place")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PlaceLink")
                         .HasColumnType("TEXT");
 
                     b.Property<TimeSpan>("Start")
@@ -141,9 +137,6 @@ namespace PkMechScheduler.Database.Migrations
                     b.Property<byte>("Blocks")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("CourseLinks")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Courses")
                         .HasColumnType("TEXT");
 
@@ -169,9 +162,6 @@ namespace PkMechScheduler.Database.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Place")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PlaceLink")
                         .HasColumnType("TEXT");
 
                     b.Property<TimeSpan>("Start")

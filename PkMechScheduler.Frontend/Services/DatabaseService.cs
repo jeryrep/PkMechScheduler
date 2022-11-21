@@ -49,30 +49,20 @@ public class DatabaseService : IDatabaseService
             return await _context.StudentBlocks.ToListAsync();
         await ClearTable(nameof(_context.StudentBlocks));
         var links = await _context.Groups.Where(x => x.Name.Contains(courseKey)).Select(x => x.Link).ToListAsync();
-        var list = Parser.ConvertDocumentsToBlockList(Scraper.ScrapSchedules(links), Mode.Student);
-        await _context.StudentBlocks.AddRangeAsync(list.OfType<StudentBlock>());
+        var list = Parser.ConvertDocumentsToBlockList(Scraper.ScrapSchedules(links), Mode.Student).OfType<StudentBlock>();
+        await _context.StudentBlocks.AddRangeAsync(list);
         await _context.SaveChangesAsync();
         return await _context.StudentBlocks.ToListAsync();
     }
 
-    public async Task<IEnumerable<TeacherBlock>> GetTeacherBlocks(string teacher, string preference, bool force = false)
-    {
-        if (await _context.TeacherBlocks.AnyAsync() && preference == teacher && !force)
-            return await _context.TeacherBlocks.ToListAsync();
-        await ClearTable(nameof(_context.TeacherBlocks));
-        var links = await _context.Teachers.Where(x => x.Name!.Contains(teacher)).Select(x => x.Link).ToListAsync();
-        var list = Parser.ConvertDocumentsToBlockList(Scraper.ScrapSchedules(links!), Mode.Teacher);
-        await _context.TeacherBlocks.AddRangeAsync(list.OfType<TeacherBlock>());
-        await _context.SaveChangesAsync();
-        return await _context.TeacherBlocks.ToListAsync();
-    }
+    public async Task<IEnumerable<TeacherBlock>> GetTeacherBlocks() => await _context.TeacherBlocks.ToListAsync();
 
     public async Task SaveTeacherBlocksToDb(string teacher)
     {
         await ClearTable(nameof(_context.TeacherBlocks));
         var links = await _context.Teachers.Where(x => x.Name!.Contains(teacher)).Select(x => x.Link).ToListAsync();
-        var list = Parser.ConvertDocumentsToBlockList(Scraper.ScrapSchedules(links!), Mode.Teacher);
-        await _context.TeacherBlocks.AddRangeAsync(list.OfType<TeacherBlock>());
+        var list = Parser.ConvertDocumentsToBlockList(Scraper.ScrapSchedules(links!), Mode.Teacher).OfType<TeacherBlock>();
+        await _context.TeacherBlocks.AddRangeAsync(list);
         await _context.SaveChangesAsync();
     }
 

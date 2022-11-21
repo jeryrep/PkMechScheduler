@@ -13,16 +13,16 @@ public partial class SchedulePage
     {
         var fullSchedule = (await _databaseService.GetBlocks(Preferences.Get(nameof(Preference.Course), string.Empty),
             Preferences.Get(nameof(Preference.Course), string.Empty))).ToList();
-        LectureLayout.IsVisible = fullSchedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Lecture).ToString()));
-        ExerciseLayout.IsVisible = fullSchedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Exercise).ToString()));
+        LectureLayout.IsVisible = fullSchedule.Any(x => x.Description == null && x.Group!.StartsWith(((char)SubjectType.Lecture).ToString()));
+        ExerciseLayout.IsVisible = fullSchedule.Any(x => x.Description == null && x.Group!.StartsWith(((char)SubjectType.Exercise).ToString()));
         LaboratoryLayout.IsVisible =
-            fullSchedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Laboratory).ToString()));
+            fullSchedule.Any(x => x.Description == null && x.Group!.StartsWith(((char)SubjectType.Laboratory).ToString()));
         ComputersLaboratoryLayout.IsVisible =
-            fullSchedule.Any(x => x.Group!.StartsWith(((char)SubjectType.ComputersLaboratory).ToString()));
-        ProjectsLayout.IsVisible = fullSchedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Projects).ToString()));
-        SeminarsLayout.IsVisible = fullSchedule.Any(x => x.Group!.StartsWith(((char)SubjectType.Seminars).ToString()));
-        WfLayout.IsVisible = fullSchedule.Any(x => x.Group is "K" or "M");
-        EnglishLayout.IsVisible = fullSchedule.Any(x => x.Group == ((char)SubjectType.Exercise).ToString());
+            fullSchedule.Any(x => x.Description == null && x.Group!.StartsWith(((char)SubjectType.ComputersLaboratory).ToString()));
+        ProjectsLayout.IsVisible = fullSchedule.Any(x => x.Description == null && x.Group!.StartsWith(((char)SubjectType.Projects).ToString()));
+        SeminarsLayout.IsVisible = fullSchedule.Any(x => x.Description == null && x.Group!.StartsWith(((char)SubjectType.Seminars).ToString()));
+        WfLayout.IsVisible = fullSchedule.Any(x => x.Description == null && x.Group is "K" or "M");
+        EnglishLayout.IsVisible = fullSchedule.Any(x => x.Description == null && x.Group == ((char)SubjectType.Exercise).ToString());
         await GenerateSchedule();
         Title = Preferences.Get(nameof(Preference.Course), "Rozkład zajęć");
     }

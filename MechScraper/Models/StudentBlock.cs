@@ -1,9 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿namespace MechScraper.Models;
 
-namespace MechScraper.Models;
-
-[Table("StudentBlocks")]
 public class StudentBlock : BaseBlock
 {
     public string? Initials { get; set; }
+    public string? InitialsLink { get; set; }
+    public string? Place { get; set; }
+    public string? PlaceLink { get; set; }
 }

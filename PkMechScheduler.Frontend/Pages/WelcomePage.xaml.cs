@@ -125,7 +125,7 @@ public partial class WelcomePage
 
     private void AddSubjectPicker(SubjectType type, IEnumerable<StudentBlock> blocks)
     {
-        var filteredBlocks = blocks.Where(x => x.Group!.StartsWith((char)type) && x.Group!.Length != 1).ToList();
+        var filteredBlocks = blocks.Where(x => x.Description == null && x.Group!.StartsWith((char)type) && x.Group!.Length != 1).ToList();
         if (filteredBlocks.Count == 0) return;
         var groupCount = filteredBlocks.Max(x => Convert.ToInt32(x.Group?.Substring(1, 2)));
         var list = new List<string>();

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PkMechScheduler.Database;
 
@@ -10,9 +11,10 @@ using PkMechScheduler.Database;
 namespace PkMechScheduler.Database.Migrations
 {
     [DbContext(typeof(SchedulerContext))]
-    partial class SchedulerContextModelSnapshot : ModelSnapshot
+    [Migration("20221120223928_NewColumnsAndMovePlaceToCoresponding")]
+    partial class NewColumnsAndMovePlaceToCoresponding
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.11");
@@ -141,7 +143,7 @@ namespace PkMechScheduler.Database.Migrations
                     b.Property<byte>("Blocks")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("CourseLinks")
+                    b.Property<string>("CourserLinks")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Courses")
@@ -171,7 +173,7 @@ namespace PkMechScheduler.Database.Migrations
                     b.Property<string>("Place")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("PlaceLink")
+                    b.Property<string>("PlacesLink")
                         .HasColumnType("TEXT");
 
                     b.Property<TimeSpan>("Start")

@@ -64,16 +64,16 @@ public partial class ScheduleGridView
                             new Span { Text = $"{teacherBlock.Courses}\n"},
                             new Span { Text = $"{blockModel.Name} " },
                             new Span { Text = $"{blockModel.Group}\n", FontAttributes = FontAttributes.Italic },
-                            new Span { Text = blockModel.Place, FontAttributes = FontAttributes.Bold }
+                            new Span { Text = teacherBlock.Place, FontAttributes = FontAttributes.Bold }
                         }
                     },
-                    StudentBlock => new FormattedString
+                    StudentBlock studentBlock => new FormattedString
                     {
                         Spans =
                         {
                             new Span { Text = $"{blockModel.Name} " },
                             new Span { Text = $"{blockModel.Group}\n", FontAttributes = FontAttributes.Italic },
-                            new Span { Text = blockModel.Place, FontAttributes = FontAttributes.Bold }
+                            new Span { Text = studentBlock.Place, FontAttributes = FontAttributes.Bold }
                         }
                     },
                     _ => new FormattedString()
@@ -92,15 +92,15 @@ public partial class ScheduleGridView
                 case TeacherBlock { Description: null } teacherBlock:
                     gesture.Tapped += async (_, _) => {
                         await Application.Current?.MainPage?.DisplayAlert(blockModel.Name, $"Grupy: {teacherBlock.Courses}\n" +
-                            $"Sala: {blockModel.Place}\n" +
+                            $"Sala: {teacherBlock.Place}\n" +
                             $"Tydzień: {blockModel.EvenWeek switch { true => "Parzysty", false => "Nieparzysty", _ => "Oba" }}\n" +
                             $"Liczba godzin: {blockModel.Blocks}", "OK")!;
                     };
                     break;
-                case StudentBlock:
+                case StudentBlock studentBlock:
                     gesture.Tapped += async (_, _) => {
                         await Application.Current?.MainPage?.DisplayAlert(blockModel.Name, $"Grupy: {blockModel.Group}\n" +
-                            $"Sala: {blockModel.Place}\n" +
+                            $"Sala: {studentBlock.Place}\n" +
                             $"Tydzień: {blockModel.EvenWeek switch { true => "Parzysty", false => "Nieparzysty", _ => "Oba" }}\n" +
                             $"Liczba godzin: {blockModel.Blocks}", "OK")!;
                     };

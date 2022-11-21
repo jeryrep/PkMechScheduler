@@ -11,5 +11,5 @@ public abstract class BaseBlock
     public string? Name { get; set; }
     public string? Group { get; set; }
     public bool? EvenWeek { get; set; }
-    public string? Place { get; set; }
+    public string? Description { get; set;}
 }
