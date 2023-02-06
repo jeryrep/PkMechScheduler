@@ -5,8 +5,6 @@ VisualStudioVersion = 17.0.31611.283
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PkMechScheduler.Frontend", "PkMechScheduler.Frontend\PkMechScheduler.Frontend.csproj", "{B3239B4C-2B9A-4D08-A749-76D60EF249CC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PkMechScheduler.Api", "PkMechScheduler.Api\PkMechScheduler.Api.csproj", "{147EB714-C3C9-42AD-9D04-A593505057C8}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PkMechScheduler.Database", "PkMechScheduler.Database\PkMechScheduler.Database.csproj", "{1C1EE1C0-72C7-478F-83EE-13C05DF47B34}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PkMechScheduler.StartupMigration", "PkMechScheduler.StartupMigration\PkMechScheduler.StartupMigration.csproj", "{F0984EF6-6D1B-4850-9824-8B3228C1CE7B}"
@@ -27,10 +25,6 @@ Global
 		{B3239B4C-2B9A-4D08-A749-76D60EF249CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3239B4C-2B9A-4D08-A749-76D60EF249CC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B3239B4C-2B9A-4D08-A749-76D60EF249CC}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{147EB714-C3C9-42AD-9D04-A593505057C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{147EB714-C3C9-42AD-9D04-A593505057C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{147EB714-C3C9-42AD-9D04-A593505057C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{147EB714-C3C9-42AD-9D04-A593505057C8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1C1EE1C0-72C7-478F-83EE-13C05DF47B34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1C1EE1C0-72C7-478F-83EE-13C05DF47B34}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1C1EE1C0-72C7-478F-83EE-13C05DF47B34}.Release|Any CPU.ActiveCfg = Release|Any CPU

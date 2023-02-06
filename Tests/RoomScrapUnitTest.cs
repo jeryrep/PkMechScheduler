@@ -1,4 +1,5 @@
 using MechScraper.Enums;
+using MechScraper.Models;
 
 namespace MechScraper.Tests;
 
@@ -25,7 +26,7 @@ public class RoomScrapUnitTest
     public void CheckK123BothWeekRoomBlockCount()
     {
         var documents = Scraper.ScrapSchedules(new[] { "s47.html", "s48.html" });
-        var list = Parser.ConvertDocumentsToBlockList(documents, Mode.DeansOffice);
+        var list = Parser.ConvertDocumentsToBlockList(documents, Mode.DeansOffice).OfType<RoomBlock>().ToList();
         Assert.IsNotNull(list);
         Assert.AreEqual(8, list.Count);
     }

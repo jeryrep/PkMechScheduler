@@ -102,7 +102,9 @@ public partial class ScheduleGridView
                         await Application.Current?.MainPage?.DisplayAlert(blockModel.Name, $"Grupy: {blockModel.Group}\n" +
                             $"Sala: {studentBlock.Place}\n" +
                             $"Tydzień: {blockModel.EvenWeek switch { true => "Parzysty", false => "Nieparzysty", _ => "Oba" }}\n" +
-                            $"Liczba godzin: {blockModel.Blocks}", "OK")!;
+                            $"Liczba godzin: {blockModel.Blocks}\n" +
+                            $"Pracownik: {studentBlock.Initials}\n" +
+                            $"Zajęcia od {blockModel.Start} do {blockModel.End}", "OK")!;
                     };
                     break;
             }
